@@ -1,9 +1,8 @@
 from flask import request, jsonify
-from services.services import login_user, add_product, update_product, delete_product, get_product
-from models.models import User
+from services.services import login_user, get_all_materials, add_product, update_product, delete_product, get_product
+#from models.models import User
 
 def login():
-    print('Simon')
     data = request.get_json()
     user_name = data.get('user_name')
     user_password = data.get('user_password')
@@ -14,6 +13,23 @@ def login():
     if logged_user:
         return jsonify(user_name.__dict__)
     return jsonify({'error': 'Invalid User'}), 404
+
+def get_materials():
+    material = get_all_materials()
+    if material:
+        return jsonify([{
+            "id": row[0], 
+            "clasificacion": row[1], 
+            "num_parte": row[2], 
+            "num_serie": row[3], 
+            "cant_kilos": row[4], 
+            "cant_metros": row[5],
+            "operador": row[6], 
+            "ubicacion": row[7], 
+            "tipo": row[8], 
+            "fecha_produccion": row[9]
+            } for row in material])
+    return jsonify({'error': 'Products not found'}), 404
 
 def create_product():
     data = request.json
@@ -35,8 +51,4 @@ def remove_product(product_id):
     result = delete_product(product_id)
     return jsonify(result)
 
-def fetch_product(product_id):
-    product = get_product(product_id)
-    if product:
-        return jsonify(product.__dict__)  # Devolver el dict del objeto Product
-    return jsonify({'error': 'Product not found'}), 404
+

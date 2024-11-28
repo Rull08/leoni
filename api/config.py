@@ -20,3 +20,4 @@ class StoredProcedures:
     UPDATE_PRODUCT = os.getenv('UPDATE_PRODUCT')
     DELETE_PRODUCT = os.getenv('DELETE_PRODUCT')
     LOGIN_USER = os.getenv('LOGIN_USER')
+    

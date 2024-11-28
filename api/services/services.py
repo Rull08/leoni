@@ -1,13 +1,17 @@
 from config import StoredProcedures
-from database import execute_query
-from models.models import User
+from database import execute_procedure, execute_query
+from models.models import Login
 
 def login_user(user_name, user_password, autenticacion):
     params = (user_name, user_password, autenticacion)
-    result = execute_query(StoredProcedures.LOGIN_USER, params)
+    result = execute_procedure(StoredProcedures.LOGIN_USER, params)
     if result:
-        return User(*result[0])
+        return Login(*result[0])
     return None
+
+def get_all_materials():
+    query = "SELECT * FROM inventario"
+    return execute_query(query)
 
 def add_product(name, quantity, price):
     params = (name, quantity, price)

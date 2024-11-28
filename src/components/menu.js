@@ -112,7 +112,6 @@ const ModalEntradas = ({ isOpen, setIsOpen }) => {
                                           Clasificación
                                       </label>
                                   </div>  
-                                  
                                   <div className="place-content-center">
                                       <label className="block text-lg font-sans font-bold leading-6 text-white">
                                           Número de Parte

@@ -14,12 +14,28 @@ def get_connection():
         print(f"Error al conectar a la base de datos: {e}")
         raise
 
-def execute_query(procedure_name, params):
+def execute_procedure(procedure_name, params):
     conn = None
     try:
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute(f"CALL {procedure_name}({', '.join(['%s'] * len(params))})", params)
+        result = cursor.fetchall() if cursor.description else None
+        conn.commit()
+        return result
+    except Exception as e:
+        print(f"Error executing query: {e}")
+        raise
+    finally:
+        cursor.close()
+        conn.close()
+        
+def execute_query(query, params=None):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(query, params or ())
         result = cursor.fetchall() if cursor.description else None
         conn.commit()
         return result
