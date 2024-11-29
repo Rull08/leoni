@@ -6,7 +6,7 @@ def login_user(user_name, user_password, autenticacion):
     params = (user_name, user_password, autenticacion)
     result = execute_procedure(StoredProcedures.LOGIN_USER, params)
     if result:
-        return Login(*result[0])
+        return Login(user_name, user_password, autenticacion)
     return None
 
 def get_all_materials():

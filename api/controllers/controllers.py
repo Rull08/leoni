@@ -4,14 +4,14 @@ from services.services import login_user, get_all_materials, add_product, update
 
 def login():
     data = request.get_json()
-    user_name = data.get('user_name')
-    user_password = data.get('user_password')
-    autenticacion = data.get('autenticacion')
-    #if not user_name or not user_password or not autenticacion:
-    #    return jsonify({"error": "Faltal parámetros: 'Usuario' o 'Contraseña'"}), 400
+    print(data)
+    user_name = data['user_name']
+    user_password = data['user_password']
+    autenticacion = data['autenticacion']
     logged_user = login_user(user_name, user_password, autenticacion)
+    print(logged_user)
     if logged_user:
-        return jsonify(user_name.__dict__)
+        return jsonify(user_name)
     return jsonify({'error': 'Invalid User'}), 404
 
 def get_materials():

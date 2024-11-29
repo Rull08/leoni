@@ -69,7 +69,7 @@ const ProductionGrid = () => {
                     </thead>
                     <tbody>
                         {materials.map((material) => (
-                            <tr key={material.id} className='border-b odd:bg-white even:bg-gray-100'>
+                            <tr key={material.id} className='border-r-stone-900 odd:bg-slate-300 even:bg-gray-300'>
                                 <td className='px-4 pt-2'>
                                     <div className='flex items-center jsutify-center h-full'>
                                         {material.id}

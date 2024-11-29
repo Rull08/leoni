@@ -11,6 +11,10 @@ app.register_blueprint(routes_bp, url_prefix='/api')
 socketio = SocketIO(app, cors_allowed_origins="*")
 register_notification_routes(socketio)
 
+@app.before_request
+def middleware():
+    print("Middleware")
+
 @app.route('/')
 def home():
     return "Pagina principal"

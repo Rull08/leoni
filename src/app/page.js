@@ -15,7 +15,7 @@ export default function Example() {
   const [user_Password, setUserPassword] = useState('');
   const [autenticacion, setAutenticacion] = useState('false');
   const [errorMessage, setErrorMessage] = useState('');
-  const router = useRouter(); // Hook para redirección
+  const router = useRouter()
 
     const handleLogin = async (e) => {
       e.preventDefault();
@@ -25,33 +25,15 @@ export default function Example() {
    
       try {
         const response = await api.post('/login', 
-            JSON.stringify({
+          {
             user_name: user_Name, 
             user_password: user_Password,
-            autenticacion,
-          }),
-          {
-            headers: {
-              'Content-Type': 'application/json', 
-            }
-        });
+            autenticacion: false,
+          }
+        );
         router.push('/dashboard');
         alert('Login exitoso:', response.data);
       } catch (error) {
-        console.error('Error during login request:', error.response || error.message);
-        setErrorMessage('Error en el login. Intenta de nuevo más tarde.');
-        if (error.response) {
-          // Respuesta con error desde el servidor
-          console.error('Error en la respuesta del servidor:', error.response.data);
-          console.error('Código de estado:', error.response.status);
-          console.error('Encabezados:', error.response.headers);
-        } else if (error.request) {
-          // Sin respuesta del servidor
-          console.error('Sin respuesta del servidor:', error.request);
-        } else {
-          // Error configurando la solicitud
-          console.error('Error al configurar la solicitud:', error.message);
-        }
         setErrorMessage('Ocurrió un error al iniciar sesión. Intenta de nuevo.');
       }
     };
