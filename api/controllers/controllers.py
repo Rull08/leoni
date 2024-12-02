@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from services.services import login_user, get_all_materials, add_product, update_product, delete_product, get_product
+from services.services import login_user, get_all_materials, set_all_ubications, add_material
 #from models.models import User
 
 def login():
@@ -9,7 +9,6 @@ def login():
     user_password = data['user_password']
     autenticacion = data['autenticacion']
     logged_user = login_user(user_name, user_password, autenticacion)
-    print(logged_user)
     if logged_user:
         return jsonify(user_name)
     return jsonify({'error': 'Invalid User'}), 404
@@ -31,15 +30,31 @@ def get_materials():
             } for row in material])
     return jsonify({'error': 'Products not found'}), 404
 
-def create_product():
-    data = request.json
-    name = data.get('name')
-    quantity = data.get('quantity')
-    price = data.get('price')
-    result = add_product(name, quantity, price)
+def set_ubications():
+    ubication = set_all_ubications()
+    if ubication:
+        return jsonify([{
+            "estado": row[1],
+            "columna": row[2],
+            "fila": row[3]
+            } for row in ubication])
+    return jsonify({'error': 'Ubications not found'}), 404
+
+def add_material():
+    data = request.get_json()
+    part_num = data['part_num'],
+    serial_num = data['serial_num'],
+    weight_quantity = data['weight_quantity'],
+    long_quantity = data['long_quantity'],
+    operator = data['operator'],
+    clasification = data['clasification'],
+    type = data['type'],
+    ubication = data['ubication'],
+    production_date = data['production_date']
+    result = add_material(part_num, serial_num, weight_quantity, long_quantity, operator, clasification, type, ubication, production_date)
     return jsonify(result)
 
-def modify_product(product_id):
+#def modify_material(product_id):
     data = request.json
     name = data.get('name')
     quantity = data.get('quantity')
@@ -47,7 +62,7 @@ def modify_product(product_id):
     result = update_product(product_id, name, quantity, price)
     return jsonify(result)
 
-def remove_product(product_id):
+#def output_material(product_id):
     result = delete_product(product_id)
     return jsonify(result)
 

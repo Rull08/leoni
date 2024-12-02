@@ -2,7 +2,6 @@
 import RootLayout from "./layout";
 
 import Image from "next/image";
-//import Link from 'next/link';
 import Leoni from '@/../public/leoni-logo.png'
 
 import { useState } from "react";
@@ -10,7 +9,7 @@ import { useRouter } from "next/navigation";
 import api from '@/utils/api';
 //import socket  from "@/utils/socket";
 
-export default function Example() {
+export default function Login() {
   const [user_Name, setUserName] = useState('');
   const [user_Password, setUserPassword] = useState('');
   const [autenticacion, setAutenticacion] = useState('false');
@@ -19,9 +18,6 @@ export default function Example() {
 
     const handleLogin = async (e) => {
       e.preventDefault();
-      console.log('user_name:', user_Name);
-      console.log('user_password:', user_Password);
-      console.log('autenticacion:', autenticacion); 
    
       try {
         const response = await api.post('/login', 
@@ -32,7 +28,6 @@ export default function Example() {
           }
         );
         router.push('/dashboard');
-        alert('Login exitoso:', response.data);
       } catch (error) {
         setErrorMessage('Ocurrió un error al iniciar sesión. Intenta de nuevo.');
       }

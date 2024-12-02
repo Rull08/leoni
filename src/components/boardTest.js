@@ -2,9 +2,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiPlus } from "react-icons/fi";
-
 import Modal_entradas from '@/components/modal_entrada';
-import Modal_salidas from '@/components/modal_salida';
 import api from '@/utils/api'
 
 const Board = () => {
@@ -52,9 +50,12 @@ const Board = () => {
     setBoard(newBoard);
   };
 
-  const handleOpenModal = (modalType) => {
-    if (modalType === 'entradas') setIsOpenEntradas(true);
-    if (modalType === 'salidas') setIsOpenSalidas(true);
+  const openModal = () => {
+    setIsOpenEntradas(true);
+  };
+
+  const closeModal = () => {
+    setIsOpenEntradas(false);
   };
 
   useEffect(() => {
@@ -96,14 +97,14 @@ const Board = () => {
               {block ? (
                 <button
                   className="text-red-700 ml-2"
-                  onClick={() => handleOpenModal('salidas')}
+                  onClick={() => removeBlock(rowIndex, colIndex)}
                 >
                   X
                 </button>
               ) : (
                 <button
                   className="text-blue-700"
-                  onClick={() => handleOpenModal('entradas')}
+                  onClick={openModal}
                 >
                   <FiPlus />
                 </button>
@@ -117,13 +118,6 @@ const Board = () => {
         isOpen={isOpenEntradas}
         setIsOpen={setIsOpenEntradas}
         onClose={addBlock}
-        />
-      )}
-      {isOpenSalidas && (
-        <Modal_salidas
-        isOpen={isOpenSalidas}
-        setIsOpen={setIsOpenSalidas}
-        onClose={removeBlock}
         />
       )}
     </>

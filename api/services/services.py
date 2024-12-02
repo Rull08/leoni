@@ -13,21 +13,18 @@ def get_all_materials():
     query = "SELECT * FROM inventario"
     return execute_query(query)
 
-def add_product(name, quantity, price):
-    params = (name, quantity, price)
-    return execute_query(StoredProcedures.ADD_PRODUCT, params)
+def set_all_ubications():
+    query = "SELECT * FROM ubicaciones"
+    return execute_query(query)
+
+def add_material(part_num, serial_num, weight_quantity, long_quantity, operator, clasification, type, ubication, production_date):
+    params = (part_num, serial_num, weight_quantity, long_quantity, operator, clasification, type, ubication, production_date)
+    return execute_procedure(StoredProcedures.ADD_MATERIAL, params)
 
 def update_product(product_id, name, quantity, price):
     params = (product_id, name, quantity, price)
-    return execute_query(StoredProcedures.UPDATE_PRODUCT, params)
+    return execute_procedure(StoredProcedures.UPDATE_PRODUCT, params)
 
 def delete_product(product_id):
     params = (product_id,)
-    return execute_query(StoredProcedures.DELETE_PRODUCT, params)
-
-def get_product(product_id):
-    params = (product_id,)
-    #result = execute_query(StoredProcedures.GET_PRODUCT, params)
-    #if result:
-    #    return Product(*result[0])  # Asumiendo que result[0] devuelve una tupla con los datos del producto
-    #return None
+    return execute_procedure(StoredProcedures.DELETE_PRODUCT, params)
