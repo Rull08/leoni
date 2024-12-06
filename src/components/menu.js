@@ -1,4 +1,4 @@
-'use client'
+
 import { AnimatePresence, motion } from 'framer-motion';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon, BellIcon } from '@heroicons/react/24/outline';

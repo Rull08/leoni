@@ -25,14 +25,14 @@ export default function Login() {
             autenticacion: false,
           }
         );
-        router.push('@app//pages/operator');
+        router.push('/pages/operator');
       } catch (error) {
         setErrorMessage('Ocurrió un error al iniciar sesión. Intenta de nuevo.');
       }
     };
 
   return (
-    <div>
+    <div className="h-screen place-content-center">  
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <Image
