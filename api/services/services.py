@@ -11,14 +11,16 @@ def login_user(user_name, user_password, autenticacion):
 
 def get_all_materials():
     query = "SELECT * FROM inventario"
+    #query = f"SELECT * FROM {StoredProcedures.GET_MATERIAL}()"
     return execute_query(query)
 
 def set_all_ubications():
     query = "SELECT * FROM ubicaciones"
     return execute_query(query)
 
-def add_material(part_num, serial_num, weight_quantity, long_quantity, operator, clasification, type, ubication, production_date):
-    params = (part_num, serial_num, weight_quantity, long_quantity, operator, clasification, type, ubication, production_date)
+def add_material(clasification, part_num, serial_num, weight_quantity, long_quantity, operator, ubication, types):
+    params = (clasification, part_num, serial_num, weight_quantity, long_quantity, operator, ubication, types)
+    print(params)
     return execute_procedure(StoredProcedures.ADD_MATERIAL, params)
 
 def update_product(product_id, name, quantity, price):

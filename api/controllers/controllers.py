@@ -17,13 +17,13 @@ def get_materials():
     material = get_all_materials()
     if material:
         return jsonify([{
-            "id": row[0], 
-            "clasificacion": row[1], 
+            "id_material": row[0], 
+            "nombre_clasificacion": row[1], 
             "num_parte": row[2], 
-            "num_serie": row[3], 
+            "numero_serie": row[3], 
             "cant_kilos": row[4], 
             "cant_metros": row[5],
-            "operador": row[6], 
+            "user": row[6], 
             "ubicacion": row[7], 
             "tipo": row[8], 
             "fecha_produccion": row[9]
@@ -40,18 +40,18 @@ def set_ubications():
             } for row in ubication])
     return jsonify({'error': 'Ubications not found'}), 404
 
-def add_material():
+def add_materials():
     data = request.get_json()
+    clasification = data['clasification'],
     part_num = data['part_num'],
     serial_num = data['serial_num'],
     weight_quantity = data['weight_quantity'],
     long_quantity = data['long_quantity'],
     operator = data['operator'],
-    clasification = data['clasification'],
-    type = data['type'],
     ubication = data['ubication'],
-    production_date = data['production_date']
-    result = add_material(part_num, serial_num, weight_quantity, long_quantity, operator, clasification, type, ubication, production_date)
+    types = data['types']
+    result = add_material(clasification, part_num, serial_num, weight_quantity, long_quantity, operator, ubication, types)
+    print(result)
     return jsonify(result)
 
 #def modify_material(product_id):

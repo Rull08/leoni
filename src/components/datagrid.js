@@ -69,10 +69,10 @@ const ProductionGrid = () => {
                     </thead>
                     <tbody>
                         {materials.map((material) => (
-                            <tr key={material.id} className='border-r-stone-900 odd:bg-slate-300 even:bg-gray-300'>
+                            <tr key={material.id_material} className='border-r-stone-900 odd:bg-slate-300 even:bg-gray-300'>
                                 <td className='px-4 pt-2'>
                                     <div className='flex items-center jsutify-center h-full'>
-                                        {material.id}
+                                        {material.id_material}
                                     </div>
                                 </td>
                                 <td className='px-4 py-2'>
@@ -82,7 +82,7 @@ const ProductionGrid = () => {
                                 </td>
                                 <td className='px-4 py-2'>
                                     <div className='flex items-center justify-center h-full'>
-                                        {material.num_serie}
+                                        {material.numero_serie}
                                     </div>
                                 </td>
                                 <td className='px-4 py-2'>
@@ -97,12 +97,12 @@ const ProductionGrid = () => {
                                 </td>
                                 <td className='px-4 py-2'>
                                     <div className='flex items-center justify-center h-full'>
-                                        {material.operador}
+                                        {material.user}
                                     </div>
                                 </td>
                                 <td className='px-4 py-2'>
                                     <div className='flex items-center justify-center h-full'>
-                                        {material.clasificacion}
+                                        {material.nombre_clasificacion}
                                     </div>
                                 </td>
                                 <td className='px-4 py-2'>

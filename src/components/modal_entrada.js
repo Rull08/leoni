@@ -1,3 +1,4 @@
+'use client'
 import { AnimatePresence, motion } from "framer-motion";
 import { FiAlertCircle } from "react-icons/fi";
 import { useState } from "react";
@@ -13,7 +14,7 @@ const Modal_entradas = ({ isOpen, setIsOpen }) => {
     const [long_Quantity, setLongQuantity] = useState('');
     const [Operator, setOperator] = useState('');
     const [Clasification, setClasification] = useState('');
-    const [Type, setType] = useState('');
+    const [Types, setTypes] = useState('');
     const [Ubication, setUbication] = useState('');
     const [production_Date, setproductionDate] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -22,15 +23,14 @@ const Modal_entradas = ({ isOpen, setIsOpen }) => {
         e.preventDefault();
         try {
             const response = await api.post('/entry', {
+                clasification: Clasification,
                 part_num: part_Num,
                 serial_num: serial_Num,
                 weight_quantity: weight_Quantity,
                 long_quantity: long_Quantity,
                 operator: Operator,
-                clasification: Clasification,
-                type: Type,
                 ubication: Ubication,
-                production_date: production_Date
+                types: Types
             }
         );
         } catch (error) {
@@ -58,7 +58,7 @@ const Modal_entradas = ({ isOpen, setIsOpen }) => {
                         className="bg-gray-800 text-white font-medium px-4 py-2 rounded hover: opacity-90 transition-opacity"
                     >
                         <div className="relative flex flex-col bg-blue-700">
-                            <form action= "#" method="POST" className="sp">
+                            <form onSubmit={handelEntry} action= "#" method="POST" className="sp">
                                 <div className="realtive m-2.5 items-center flex justify-center text-white h-12 rounded-md bg-slate-800">
                                     <h3 className="text-lg" > Entrada </h3>
                                 </div>
@@ -164,8 +164,8 @@ const Modal_entradas = ({ isOpen, setIsOpen }) => {
                                               id="tipo"
                                               name="tipo"
                                               type="text"
-                                              value={Type}
-                                              onChange={(e) => setType(e.target.value)}
+                                              value={Types}
+                                              onChange={(e) => setTypes(e.target.value)}
                                               className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Tipo"
                                             />
                                         </div> 
@@ -185,21 +185,6 @@ const Modal_entradas = ({ isOpen, setIsOpen }) => {
                                             />
                                         </div> 
                                     </div>
-                                </div>
-                                <div className="flex flex-col after:items-center gap-1 p-2">
-                                        <div className="w-full max-w-sm min-w-[200px]">
-                                            <label className="block mb-2 text-sm text-white">
-                                                Fecha de Producción
-                                            </label>
-                                            <input
-                                              id="produccion"
-                                              name="fecha_produccion"
-                                              type="date"
-                                              value={production_Date}
-                                              onChange={(e) => setproductionDate(e.target.value)}
-                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                                            />
-                                        </div> 
                                 </div>
                                 <div className="grid grid-cols-2 items-center m-2">
                                     <div>
