@@ -42,16 +42,17 @@ def set_ubications():
 
 def add_materials():
     data = request.get_json()
-    clasification = data['clasification'],
+    types = data['types'],
     part_num = data['part_num'],
     serial_num = data['serial_num'],
     weight_quantity = data['weight_quantity'],
     long_quantity = data['long_quantity'],
     operator = data['operator'],
+    clasification = data['clasification'],
     ubication = data['ubication'],
-    types = data['types']
-    result = add_material(clasification, part_num, serial_num, weight_quantity, long_quantity, operator, ubication, types)
-    print(result)
+    respuesta = data['respuesta']
+    print(data)
+    result = add_material(types, part_num, serial_num, weight_quantity, long_quantity, operator, clasification, ubication, respuesta)
     return jsonify(result)
 
 #def modify_material(product_id):

@@ -9,8 +9,11 @@ import api from '@/utils/api'
 
 const Board = () => {
   const [board, setBoard] = useState(
-    Array.from({ length: 4 }, () => Array.from({ length: 16 }, () => null))
+    Array.from({ length: 16 }, () => Array.from({ length: 4 }, () => null))
   );
+
+  const columnMap = { A: 0, B: 1, C: 2, D: 3 };
+  const reverseColumnMap = ['A', 'B', 'C', 'D'];
 
   const [ubications, setUbications] = useState([]);
   const [error, setError] = useState(null);
@@ -19,6 +22,38 @@ const Board = () => {
 
   const [isOpenEntradas, setIsOpenEntradas] = useState(false);
   const [isOpenSalidas, setIsOpenSalidas] = useState(false);
+
+
+  useEffect(() => {
+    const fetchUbications = async () => {
+      try {
+        const response = await api.get('/ubications')
+        const data = response.data;
+        const newBoard = Array.from({ length: 16}, () =>
+          Array.from({ length: 4 }, () => null)
+        );
+
+        data.forEach(({ columna, estado, fila }) => {
+          const colIndex = columnMap[columna.toUpperCase()];
+          const adjustedRow = fila - 1;
+          if (colIndex >= 0 && colIndex < 4 && adjustedRow >= 0 && adjustedRow < 16) {
+            newBoard[adjustedRow][colIndex] = estado ? 'Ocupado' : null;
+          } else {
+            console.error(`Fila o columna fuera de rango: columna=${columna}, fila=${fila}`);
+          }
+        });
+
+        setBoard(newBoard);
+
+      } catch(err) {
+          console.error("Error obteniendo ubicaciones:", err)
+          setError('Error obteniendo ubicaciones')
+      }
+    };
+
+    fetchUbications();
+
+  },  []);
 
   const handleDragStart = (row, col) => {
     setDraggingBlock({ row, col });
@@ -38,18 +73,32 @@ const Board = () => {
     setDraggingBlock(null);
   };
 
-  const addBlock = (row, col, value) => {
+  const addBlock = async (row, col) => {
     if (board[row][col] === null) {
       const newBoard = [...board];
-      newBoard[row][col] = value;
+      newBoard[row][col] = 'Ocupado';
       setBoard(newBoard);
+      fetchUbications();
+      try {
+        await api.post('/update_ubication', { columna: col, fila: row, estado: true });
+      } catch (err) {
+        console.error('Error actualizando ubicación:', err);
+      }
     }
   };
 
-  const removeBlock = (row, col) => {
-    const newBoard = [...board];
-    newBoard[row][col] = null;
-    setBoard(newBoard);
+  const removeBlock = async (row, col) => {
+    if (board[row][col] !== null) {
+      const newBoard = [...board];
+      newBoard[row][col] = null;
+      setBoard(newBoard);
+
+      try {
+        await api.post('/update_ubication', { columna: col, fila: row, estado: false });
+      } catch (err) {
+        console.error('Error actualizando ubicación:', err);
+      }
+    }
   };
 
   const handleOpenModal = (modalType) => {
@@ -57,18 +106,9 @@ const Board = () => {
     if (modalType === 'salidas') setIsOpenSalidas(true);
   };
 
-  useEffect(() => {
-    const setUbications = async() => {
-        try {
-          const response = await api.get('/ubications')
-          setUbications(response.data)
-        } catch (error) {
-          setError('Error obteniendo ubicaciones');
-          console.error(error)
-        }
-    };
-    setUbications();
-  }, []);
+  const getLocationName = (rowIndex, colIndex) => {
+    return `${reverseColumnMap[colIndex]}${rowIndex + 1}`;
+  };
 
   return (
     <>
@@ -102,10 +142,12 @@ const Board = () => {
                 </button>
               ) : (
                 <button
-                  className="text-blue-700"
+                  className="text-blue-500 size-full"
                   onClick={() => handleOpenModal('entradas')}
                 >
-                  <FiPlus />
+                  <div className='flex '>
+                    {getLocationName(rowIndex, colIndex)}
+                  </div>
                 </button>
               )}
             </motion.div>

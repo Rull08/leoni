@@ -1,13 +1,13 @@
 'use client'
 import { AnimatePresence, motion } from "framer-motion";
-import { FiAlertCircle } from "react-icons/fi";
+//import { FiAlertCircle } from "react-icons/fi";
 import { useState } from "react";
-import RootLayout from "@/app/layout";
-import { Root } from "postcss";
+//import RootLayout from "@/app/layout";
+//import { Root } from "postcss";
 
 import api from '@/utils/api'
 
-const Modal_entradas = ({ isOpen, setIsOpen }) => {
+const Modal_entradas = ({ isOpen, setIsOpen, closeModal }) => {
     const [part_Num, setPartNum] = useState('');
     const [serial_Num, setSerialNum] = useState('');
     const [weight_Quantity, setWeightQuantity] = useState('');
@@ -18,22 +18,28 @@ const Modal_entradas = ({ isOpen, setIsOpen }) => {
     const [Ubication, setUbication] = useState('');
     const [production_Date, setproductionDate] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-
+    
     const handelEntry = async (e) => {
         e.preventDefault();
         try {
             const response = await api.post('/entry', {
-                clasification: Clasification,
-                part_num: part_Num,
-                serial_num: serial_Num,
-                weight_quantity: weight_Quantity,
-                long_quantity: long_Quantity,
-                operator: Operator,
-                ubication: Ubication,
-                types: Types
-            }
+                types: String(Types),
+                part_num: String(part_Num),
+                serial_num: String(serial_Num),
+                weight_quantity: String(weight_Quantity),
+                long_quantity: String(long_Quantity),
+                operator: String(Operator),
+                ubication: String(Ubication),
+                clasification: String(Clasification),
+                respuesta: String("Geimy")
+            },
         );
+        if (response.status === 200)
+        {
+           closeModal = setIsOpen(false);
+        }
         } catch (error) {
+            console.error('Error al enviar el formulario:', error);
             setErrorMessage('Ocurrio un error al ingresar el material.');
         }
     }
@@ -158,21 +164,6 @@ const Modal_entradas = ({ isOpen, setIsOpen }) => {
                                     <div className="flex flex-col gap-1 p-2">
                                         <div className="w-full max-w-sm min-w-[200px]">
                                             <label className="block mb-2 text-sm text-white">
-                                                Tipo
-                                            </label>
-                                            <input
-                                              id="tipo"
-                                              name="tipo"
-                                              type="text"
-                                              value={Types}
-                                              onChange={(e) => setTypes(e.target.value)}
-                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Tipo"
-                                            />
-                                        </div> 
-                                    </div>
-                                    <div className="flex flex-col gap-1 p-2">
-                                        <div className="w-full max-w-sm min-w-[200px]">
-                                            <label className="block mb-2 text-sm text-white">
                                                 Clasificación
                                             </label>
                                         <input
@@ -182,6 +173,21 @@ const Modal_entradas = ({ isOpen, setIsOpen }) => {
                                               value={Clasification}
                                               onChange={(e) => setClasification(e.target.value)}
                                               className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Clasificacion"
+                                            />
+                                        </div> 
+                                    </div>
+                                    <div className="flex flex-col gap-1 p-2">
+                                        <div className="w-full max-w-sm min-w-[200px]">
+                                            <label className="block mb-2 text-sm text-white">
+                                                Tipo
+                                            </label>
+                                            <input
+                                              id="tipo"
+                                              name="tipo"
+                                              type="text"
+                                              value={Types}
+                                              onChange={(e) => setTypes(e.target.value)}
+                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Tipo"
                                             />
                                         </div> 
                                     </div>
@@ -199,7 +205,7 @@ const Modal_entradas = ({ isOpen, setIsOpen }) => {
                                     <div>
                                         <button
                                             type="submit"
-                                            onClick={() => setIsOpen(false)}
+                                            onClick={closeModal}
                                             className="bg-black hover:bg-black/60 transition-opacity text-white font-semibold w-full rounded"
                                         >
                                             Aceptar
