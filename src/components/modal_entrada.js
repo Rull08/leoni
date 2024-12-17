@@ -1,13 +1,10 @@
 'use client'
 import { AnimatePresence, motion } from "framer-motion";
-//import { FiAlertCircle } from "react-icons/fi";
 import { useState } from "react";
-//import RootLayout from "@/app/layout";
-//import { Root } from "postcss";
 
 import api from '@/utils/api'
 
-const Modal_entradas = ({ isOpen, setIsOpen, closeModal }) => {
+const Modal_entradas = ({ isOpen, setIsOpen, closeModal, row, col }) => {
     const [part_Num, setPartNum] = useState('');
     const [serial_Num, setSerialNum] = useState('');
     const [weight_Quantity, setWeightQuantity] = useState('');
@@ -16,8 +13,9 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal }) => {
     const [Clasification, setClasification] = useState('');
     const [Types, setTypes] = useState('');
     const [Ubication, setUbication] = useState('');
-    const [production_Date, setproductionDate] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState;
+    
+    //const columnMap = { 0: "A", 1: "B", 2: "C", 3: "D" };
     
     const handelEntry = async (e) => {
         e.preventDefault();
@@ -44,7 +42,19 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal }) => {
         }
     }
 
+    //console.log(typeof row, row, typeof col, col)
+
+    //const getUbicationName = (row, col) => {
+    //    if (typeof row === "number" && typeof col === "number") {
+    //        const columnName = columnMap[col]; 
+    //        if (!columnName) return "Ubicación inválida"; 
+    //        return `${columnName}${row + 1}`; 
+    //    }
+    //    return "Ubicación";
+    //};
+    
     if(!isOpen) return null;
+
 
     return (
         <AnimatePresence>
@@ -147,7 +157,7 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal }) => {
                                     <div className="flex flex-col gap-1 p-2">
                                         <div className="w-full max-w-sm min-w-[200px]">
                                             <label className="block mb-2 text-sm text-white">
-                                                Ubicación
+                                                getUbicationName
                                             </label>
                                           <input
                                             id="ubicacion"

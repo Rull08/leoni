@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiPlus } from "react-icons/fi";
 
-import Modal_entradas from '@/components/modal_entrada';
+//import Modal_entradas from '@/components/modal_entrada';
 import Modal_salidas from '@/components/modal_salida';
 import api from '@/utils/api'
 
@@ -15,7 +15,6 @@ const Board = () => {
   const columnMap = { A: 0, B: 1, C: 2, D: 3 };
   const reverseColumnMap = ['A', 'B', 'C', 'D'];
 
-  const [ubications, setUbications] = useState([]);
   const [error, setError] = useState(null);
   
   const [draggingBlock, setDraggingBlock] = useState(null);
@@ -23,6 +22,8 @@ const Board = () => {
   const [isOpenEntradas, setIsOpenEntradas] = useState(false);
   const [isOpenSalidas, setIsOpenSalidas] = useState(false);
 
+  const [rowSelected, setRowSelected] = useState(null);
+  const [colSelected, setColSelected] = useState(null);
 
   useEffect(() => {
     const fetchUbications = async () => {
@@ -101,8 +102,10 @@ const Board = () => {
     }
   };
 
-  const handleOpenModal = (modalType) => {
-    if (modalType === 'entradas') setIsOpenEntradas(true);
+  const handleOpenModal = (modalType, row, col) => {
+    setRowSelected(row);
+    setColSelected(col);
+    if (modalType === 'entradas') setIsOpenEntradas(true)
     if (modalType === 'salidas') setIsOpenSalidas(true);
   };
 
@@ -143,7 +146,7 @@ const Board = () => {
               ) : (
                 <button
                   className="text-blue-500 size-full"
-                  onClick={() => handleOpenModal('entradas')}
+                  onClick={() => handleOpenModal('entradas',  rowIndex, colIndex)}
                 >
                   <div className='flex '>
                     {getLocationName(rowIndex, colIndex)}
@@ -158,7 +161,9 @@ const Board = () => {
         <Modal_entradas
         isOpen={isOpenEntradas}
         setIsOpen={setIsOpenEntradas}
-        onClose={addBlock}
+        onClose={() =>addBlock(rowSelected, colSelected)}
+        row = {rowSelected}
+        col = {colSelected}
         />
       )}
       {isOpenSalidas && (
