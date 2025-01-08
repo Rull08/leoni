@@ -1,32 +1,37 @@
 from flask import request, jsonify
-from services.services import login_user, get_all_materials, set_all_ubications, add_material
+from services.services import login_user, get_all_materials, set_all_ubications, add_material, delete_material
+from flask_jwt_extended import create_access_token
+from datetime import datetime
 #from models.models import User
 
 def login():
     data = request.get_json()
-    print(data)
     user_name = data['user_name']
     user_password = data['user_password']
+    user_rol = data['user_rol']
     autenticacion = data['autenticacion']
-    logged_user = login_user(user_name, user_password, autenticacion)
-    if logged_user:
-        return jsonify(user_name)
-    return jsonify({'error': 'Invalid User'}), 404
+    logged_user = login_user(user_name, user_password, user_rol, autenticacion)
+    
+    if logged_user and logged_user.autenticacion:
+        access_token = create_access_token(identity=logged_user.user_name, additional_claims={"role": logged_user.user_rol})
+        return jsonify(access_token=access_token), 200
+    else:
+        return jsonify({'error': 'Invalid User'}), 401
 
 def get_materials():
     material = get_all_materials()
     if material:
         return jsonify([{
-            "id": row[0], 
-            "clasificacion": row[1], 
+            "id_material": row[0], 
+            "nombre_clasificacion": row[1], 
             "num_parte": row[2], 
-            "num_serie": row[3], 
+            "numero_serie": row[3], 
             "cant_kilos": row[4], 
             "cant_metros": row[5],
-            "operador": row[6], 
+            "user": row[6], 
             "ubicacion": row[7], 
             "tipo": row[8], 
-            "fecha_produccion": row[9]
+            "fecha_produccion": row[9].strftime("%d/%m/%Y") if row[9] else None
             } for row in material])
     return jsonify({'error': 'Products not found'}), 404
 
@@ -40,26 +45,25 @@ def set_ubications():
             } for row in ubication])
     return jsonify({'error': 'Ubications not found'}), 404
 
-def add_material():
+def add_materials():
     data = request.get_json()
+    types = data['types'],
     part_num = data['part_num'],
     serial_num = data['serial_num'],
     weight_quantity = data['weight_quantity'],
     long_quantity = data['long_quantity'],
     operator = data['operator'],
     clasification = data['clasification'],
-    type = data['type'],
     ubication = data['ubication'],
-    production_date = data['production_date']
-    result = add_material(part_num, serial_num, weight_quantity, long_quantity, operator, clasification, type, ubication, production_date)
+    respuesta = data['respuesta']
+    print(data)
+    result = add_material(types, part_num, serial_num, weight_quantity, long_quantity, operator, clasification, ubication, respuesta)
     return jsonify(result)
 
-#def modify_material(product_id):
-    data = request.json
-    name = data.get('name')
-    quantity = data.get('quantity')
-    price = data.get('price')
-    result = update_product(product_id, name, quantity, price)
+def delete_material():
+    data = request.get_json()
+    print(data)
+    result = delete_material(data)
     return jsonify(result)
 
 #def output_material(product_id):

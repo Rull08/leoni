@@ -1,42 +1,61 @@
+'use client'
 import { AnimatePresence, motion } from "framer-motion";
-import { FiAlertCircle } from "react-icons/fi";
-import { useState } from "react";
-import RootLayout from "@/app/layout";
-import { Root } from "postcss";
+import { useEffect, useState } from "react";
 
 import api from '@/utils/api'
 
-const Modal_entradas = ({ isOpen, setIsOpen }) => {
+const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) => {
     const [part_Num, setPartNum] = useState('');
     const [serial_Num, setSerialNum] = useState('');
     const [weight_Quantity, setWeightQuantity] = useState('');
     const [long_Quantity, setLongQuantity] = useState('');
     const [Operator, setOperator] = useState('');
     const [Clasification, setClasification] = useState('');
-    const [Type, setType] = useState('');
+    const [Types, setTypes] = useState('');
     const [Ubication, setUbication] = useState('');
-    const [production_Date, setproductionDate] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-
+    
+    const columnMap = { 0: "A", 1: "B", 2: "C", 3: "D" };
+    
     const handelEntry = async (e) => {
         e.preventDefault();
         try {
             const response = await api.post('/entry', {
-                part_num: part_Num,
-                serial_num: serial_Num,
-                weight_quantity: weight_Quantity,
-                long_quantity: long_Quantity,
-                operator: Operator,
-                clasification: Clasification,
-                type: Type,
-                ubication: Ubication,
-                production_date: production_Date
-            }
+                types: String(Types),
+                part_num: String(part_Num.toUpperCase()),
+                serial_num: String(serial_Num),
+                weight_quantity: String(weight_Quantity),
+                long_quantity: String(long_Quantity),
+                operator: String(Operator),
+                ubication: String(Ubication),
+                clasification: String(Clasification),
+                respuesta: String("Geimy")
+            },
         );
+        if (response.status === 200)
+        {
+            if (onClose) await onClose();
+            closeModal = setIsOpen(false);
+        }
         } catch (error) {
+            console.error('Error al enviar el formulario:', error);
             setErrorMessage('Ocurrio un error al ingresar el material.');
         }
-    }
+    };
+
+    const getUbicationName = (row, col) => {
+        if (typeof row === "number" || typeof col === "number") {
+            const columnName = columnMap[col]; 
+            if (!columnName) return "Ubicación inválida"; 
+            return `${columnName}${row + 1}`; 
+        } else
+            return "Ubicación";
+    };
+    
+    useEffect(() => {
+        const value = getUbicationName(row, col);
+        setUbication(value)
+    }, [row, col]);
 
     if(!isOpen) return null;
 
@@ -58,7 +77,7 @@ const Modal_entradas = ({ isOpen, setIsOpen }) => {
                         className="bg-gray-800 text-white font-medium px-4 py-2 rounded hover: opacity-90 transition-opacity"
                     >
                         <div className="relative flex flex-col bg-blue-700">
-                            <form action= "#" method="POST" className="sp">
+                            <form onSubmit={handelEntry} action= "#" method="POST" className="sp">
                                 <div className="realtive m-2.5 items-center flex justify-center text-white h-12 rounded-md bg-slate-800">
                                     <h3 className="text-lg" > Entrada </h3>
                                 </div>
@@ -149,27 +168,12 @@ const Modal_entradas = ({ isOpen, setIsOpen }) => {
                                             type="text"
                                             value={Ubication}
                                             onChange={(e) => setUbication(e.target.value)}
-                                            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Ubicación"
+                                            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder={getUbicationName(row, col)}
                                             />
                                         </div> 
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2">
-                                    <div className="flex flex-col gap-1 p-2">
-                                        <div className="w-full max-w-sm min-w-[200px]">
-                                            <label className="block mb-2 text-sm text-white">
-                                                Tipo
-                                            </label>
-                                            <input
-                                              id="tipo"
-                                              name="tipo"
-                                              type="text"
-                                              value={Type}
-                                              onChange={(e) => setType(e.target.value)}
-                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Tipo"
-                                            />
-                                        </div> 
-                                    </div>
                                     <div className="flex flex-col gap-1 p-2">
                                         <div className="w-full max-w-sm min-w-[200px]">
                                             <label className="block mb-2 text-sm text-white">
@@ -185,21 +189,21 @@ const Modal_entradas = ({ isOpen, setIsOpen }) => {
                                             />
                                         </div> 
                                     </div>
-                                </div>
-                                <div className="flex flex-col after:items-center gap-1 p-2">
+                                    <div className="flex flex-col gap-1 p-2">
                                         <div className="w-full max-w-sm min-w-[200px]">
                                             <label className="block mb-2 text-sm text-white">
-                                                Fecha de Producción
+                                                Tipo
                                             </label>
                                             <input
-                                              id="produccion"
-                                              name="fecha_produccion"
-                                              type="date"
-                                              value={production_Date}
-                                              onChange={(e) => setproductionDate(e.target.value)}
-                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                                              id="tipo"
+                                              name="tipo"
+                                              type="text"
+                                              value={Types}
+                                              onChange={(e) => setTypes(e.target.value)}
+                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Tipo"
                                             />
                                         </div> 
+                                    </div>
                                 </div>
                                 <div className="grid grid-cols-2 items-center m-2">
                                     <div>
@@ -214,7 +218,7 @@ const Modal_entradas = ({ isOpen, setIsOpen }) => {
                                     <div>
                                         <button
                                             type="submit"
-                                            onClick={() => setIsOpen(false)}
+                                            onClick={closeModal}
                                             className="bg-black hover:bg-black/60 transition-opacity text-white font-semibold w-full rounded"
                                         >
                                             Aceptar

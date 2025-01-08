@@ -1,5 +1,3 @@
-// components/Navbar.js
-import { AnimatePresence, motion } from 'framer-motion';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon, BellIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
@@ -9,11 +7,7 @@ import Modal_entradas from '@/components/modal_entrada';
 import Modal_salidas from '@/components/modal_salida'
 
 
-const navigation = [
-  { name: 'Ubicaciones', href: '#', current: true },
-  { name: 'Entradas', href: '#', current: false, modal:'entradas' },
-  { name: 'Salidas', href: '#', current: false, modal: 'salidas' },
-];
+const navigation = [];
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -72,7 +66,6 @@ const Navbar = () => {
                 <span className="sr-only">View notifications</span>
                 <BellIcon className="h-6 w-6" />
               </button>
-              
             </div>
             <Modal_entradas isOpen={isOpenEntradas} setIsOpen={setIsOpenEntradas} />
             <Modal_salidas isOpen={isOpenSalidas} setIsOpen={setIsOpenSalidas} />
