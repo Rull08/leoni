@@ -1,10 +1,10 @@
 'use client'
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import api from '@/utils/api'
 
-const Modal_entradas = ({ isOpen, setIsOpen, closeModal, row, col }) => {
+const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) => {
     const [part_Num, setPartNum] = useState('');
     const [serial_Num, setSerialNum] = useState('');
     const [weight_Quantity, setWeightQuantity] = useState('');
@@ -13,16 +13,16 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, row, col }) => {
     const [Clasification, setClasification] = useState('');
     const [Types, setTypes] = useState('');
     const [Ubication, setUbication] = useState('');
-    const [errorMessage, setErrorMessage] = useState;
+    const [errorMessage, setErrorMessage] = useState('');
     
-    //const columnMap = { 0: "A", 1: "B", 2: "C", 3: "D" };
+    const columnMap = { 0: "A", 1: "B", 2: "C", 3: "D" };
     
     const handelEntry = async (e) => {
         e.preventDefault();
         try {
             const response = await api.post('/entry', {
                 types: String(Types),
-                part_num: String(part_Num),
+                part_num: String(part_Num.toUpperCase()),
                 serial_num: String(serial_Num),
                 weight_quantity: String(weight_Quantity),
                 long_quantity: String(long_Quantity),
@@ -34,27 +34,30 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, row, col }) => {
         );
         if (response.status === 200)
         {
-           closeModal = setIsOpen(false);
+            if (onClose) await onClose();
+            closeModal = setIsOpen(false);
         }
         } catch (error) {
             console.error('Error al enviar el formulario:', error);
             setErrorMessage('Ocurrio un error al ingresar el material.');
         }
-    }
+    };
 
-    //console.log(typeof row, row, typeof col, col)
-
-    //const getUbicationName = (row, col) => {
-    //    if (typeof row === "number" && typeof col === "number") {
-    //        const columnName = columnMap[col]; 
-    //        if (!columnName) return "Ubicación inválida"; 
-    //        return `${columnName}${row + 1}`; 
-    //    }
-    //    return "Ubicación";
-    //};
+    const getUbicationName = (row, col) => {
+        if (typeof row === "number" || typeof col === "number") {
+            const columnName = columnMap[col]; 
+            if (!columnName) return "Ubicación inválida"; 
+            return `${columnName}${row + 1}`; 
+        } else
+            return "Ubicación";
+    };
     
-    if(!isOpen) return null;
+    useEffect(() => {
+        const value = getUbicationName(row, col);
+        setUbication(value)
+    }, [row, col]);
 
+    if(!isOpen) return null;
 
     return (
         <AnimatePresence>
@@ -157,7 +160,7 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, row, col }) => {
                                     <div className="flex flex-col gap-1 p-2">
                                         <div className="w-full max-w-sm min-w-[200px]">
                                             <label className="block mb-2 text-sm text-white">
-                                                getUbicationName
+                                                Ubicación
                                             </label>
                                           <input
                                             id="ubicacion"
@@ -165,7 +168,7 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, row, col }) => {
                                             type="text"
                                             value={Ubication}
                                             onChange={(e) => setUbication(e.target.value)}
-                                            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Ubicación"
+                                            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder={getUbicationName(row, col)}
                                             />
                                         </div> 
                                     </div>

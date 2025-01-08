@@ -32,6 +32,7 @@ def execute_procedure(procedure_name, params=None):
                     print(row)
             else: None
     
+        print(result)
         conn.commit()
         return result
     except Exception as e:

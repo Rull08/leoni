@@ -1,9 +1,9 @@
 'use client'
 import '@/app/globals.css';
-import Board from '@/components/board';
+import ProductionGrid from '@/components/datagrid';
 
 export default function Admin(){
     return (
-        <Board/>
+        <ProductionGrid />
     );
 }

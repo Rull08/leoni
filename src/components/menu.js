@@ -1,5 +1,3 @@
-
-import { AnimatePresence, motion } from 'framer-motion';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon, BellIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
@@ -68,7 +66,6 @@ const Navbar = () => {
                 <span className="sr-only">View notifications</span>
                 <BellIcon className="h-6 w-6" />
               </button>
-              
             </div>
             <Modal_entradas isOpen={isOpenEntradas} setIsOpen={setIsOpenEntradas} />
             <Modal_salidas isOpen={isOpenSalidas} setIsOpen={setIsOpenSalidas} />

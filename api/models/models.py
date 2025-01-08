@@ -1,12 +1,13 @@
 class Login:
-    def __init__(self, user_name, user_password, autenticacion):
+    def __init__(self, user_name, user_password, user_rol, autenticacion):
         self.user_name = user_name
         self.user_password = user_password
+        self.user_rol = user_rol
         self.autenticacion = autenticacion
         
     def __repr__(self):
         masked_password = '*' * len(self.user_password)
-        return f"<User(user_name={self.user_name}, user_password={masked_password}, autenticacion={self.autenticacion})>"
+        return f"<User(user_name={self.user_name}, user_password={masked_password}, user_role={self.user_rol}, autenticacion={self.autenticacion})>"
     
 class Material:
     def __init__(self, types, part_num, serial_num, weight_quantity, long_quantity, operator, ubication, clasification, respuesta):

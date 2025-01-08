@@ -5,6 +5,8 @@ import Leoni from '@/../public/leoni-logo.png'
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from '@/utils/api';
+
+import { jwtDecode } from 'jwt-decode';
 //import socket  from "@/utils/socket";
 
 export default function Login() {
@@ -22,10 +24,36 @@ export default function Login() {
           {
             user_name: user_Name, 
             user_password: user_Password,
+            user_rol: 'guest',
             autenticacion: false,
           }
         );
-        router.push('/pages/operator');
+
+        const { access_token } = response.data;
+        localStorage.setItem('token', access_token); 
+        
+        const token = localStorage.getItem('token');
+        if(!token){
+          router.push('/login')
+          return null;
+        }
+
+        const decodedToken = jwtDecode(token);
+        console.log(decodedToken.role)
+        if(decodedToken.role === 'admin'){
+          router.push('/pages/admin');
+          return null;
+        }  else if (decodedToken.role === 'produccion') {
+          router.push('/pages/production');
+          return null;
+        } else if (decodedToken.role === 'operador'){
+          router.push('/pages/operator');
+          return null;
+        } else {
+          console.log('Usted no tiene acceso jodase')
+          return null;
+        }
+
       } catch (error) {
         setErrorMessage('Ocurrió un error al iniciar sesión. Intenta de nuevo.');
       }
