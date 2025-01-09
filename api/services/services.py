@@ -15,7 +15,7 @@ def get_all_materials():
     return execute_query(query)
 
 def set_all_ubications():
-    query = "SELECT * FROM ubicaciones"
+    query = "SELECT ub.*, i.num_parte FROM ubicaciones ub INNER JOIN inventario i ON ub.id_ubicacion = i.ubicacion;"
     return execute_query(query)
 
 def add_material(types, part_num, serial_num, weight_quantity, long_quantity, operator, clasification, ubication, respuesta="Pito"):

@@ -145,7 +145,7 @@ const ProductionGrid = () => {
                     </div>
                     <div className='p-4'>        
                         <button onClick={downloadCSV} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
-                            <AiOutlineDownload className='mr-12' /> Export to CSV
+                            <AiOutlineDownload className='mr-12' /> Exportar Excel
                         </button>
                     </div>
                 </div>

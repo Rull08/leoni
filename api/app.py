@@ -13,7 +13,7 @@ app.register_blueprint(routes_bp, url_prefix='/api')
 
 app.config['JWT_SECRET_KEY'] = 'your_secret_key'  
 
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=5)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=1)
 
 socketio = SocketIO(app, cors_allowed_origins="*")
 register_notification_routes(socketio)

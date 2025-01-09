@@ -41,7 +41,8 @@ def set_ubications():
         return jsonify([{
             "estado": row[1],
             "columna": row[2],
-            "fila": row[3]
+            "fila": row[3],
+            "num_parte": row[4]
             } for row in ubication])
     return jsonify({'error': 'Ubications not found'}), 404
 

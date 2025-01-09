@@ -28,14 +28,15 @@ const Board = () => {
     try {
       const response = await api.get('/ubications')
       const data = response.data;
+      console.log(data)
       const newBoard = Array.from({ length: 16}, () =>
         Array.from({ length: 4 }, () => null)
       );
-      data.forEach(({ columna, estado, fila }) => {
+      data.forEach(({ columna, estado, fila, num_parte }) => {
         const colIndex = columnMap[columna.toUpperCase()];
         const adjustedRow = fila - 1;
         if (colIndex >= 0 && colIndex < 4 && adjustedRow >= 0 && adjustedRow < 16) {
-          newBoard[adjustedRow][colIndex] = estado ? 'Ocupado' : null;
+          newBoard[adjustedRow][colIndex] = estado ? String(num_parte.toUpperCase()) : null;
         } else {
           console.error(`Fila o columna fuera de rango: columna=${columna}, fila=${fila}`);
         }
