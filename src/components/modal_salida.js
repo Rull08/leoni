@@ -24,7 +24,7 @@ const Modal_salidas = ({ isOpen, setIsOpen }) => {
                         onClick={(e) => e.stopPropagation()}
                         className="bg-gray-800 text-white font-medium px-4 py-2 rounded hover: opacity-90 transition-opacity"
                     >
-                        <div className="relative flex flex-col bg-blue-700">
+                        <div className="relative flex flex-col bg-white">
                             <form action= "#" method="POST" className="sp">
                                 <div className="realtive m-2.5 items-center flex justify-center text-white h-12 rounded-md bg-slate-800">
                                     <h3 className="text-lg" > Salida </h3>

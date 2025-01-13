@@ -11,9 +11,9 @@ CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 app.register_blueprint(routes_bp, url_prefix='/api')
 
 
-app.config['JWT_SECRET_KEY'] = 'your_secret_key'  
+app.config['JWT_SECRET_KEY'] = 'your_secret_key'  #Cambiar la clave y ponerla de forma segura
 
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=1)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=50)
 
 socketio = SocketIO(app, cors_allowed_origins="*")
 register_notification_routes(socketio)

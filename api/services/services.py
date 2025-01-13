@@ -15,18 +15,15 @@ def get_all_materials():
     return execute_query(query)
 
 def set_all_ubications():
-    query = "SELECT ub.*, i.num_parte FROM ubicaciones ub INNER JOIN inventario i ON ub.id_ubicacion = i.ubicacion;"
+    query = "SELECT ub.*, i.num_parte, i.id_material FROM ubicaciones ub INNER JOIN inventario i ON ub.id_ubicacion = i.ubicacion;"
     return execute_query(query)
 
-def add_material(types, part_num, serial_num, weight_quantity, long_quantity, operator, clasification, ubication, respuesta="Pito"):
+def add_material(types, part_num, serial_num, weight_quantity, long_quantity, operator, clasification, ubication, respuesta="N/A"):
     flatter_params = (types, part_num, serial_num, weight_quantity, long_quantity, operator, clasification, ubication, respuesta)
     params_list = [item[0]  if isinstance(item, tuple) else item for item in flatter_params]
     params = tuple(params_list)
     result = execute_procedure(StoredProcedures.ADD_MATERIAL, params)
     print(f"Respuesta {result}")
-    print()
-    #if result:
-    #    return Material(types, part_num, serial_num, weight_quantity, long_quantity, operator, clasification, ubication, respuesta)
     return None
 
 def update_product(product_id, name, quantity, price):
@@ -36,3 +33,10 @@ def update_product(product_id, name, quantity, price):
 def delete_material(data): 
     params = (data)
     return execute_procedure(StoredProcedures.DELETE_PRODUCT, params)
+
+def search_material(table, doe):
+    query = f"SELECT * FROM inventario WHERE num_parte LIKE '{doe}';"
+    query_fix = (query.replace(",", ""))
+    query_fixed = (query.replace("'", ""))
+    print(query_fix)
+    return execute_query(query_fixed)
