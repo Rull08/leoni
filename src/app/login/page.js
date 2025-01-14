@@ -47,7 +47,7 @@ export default function Login() {
           router.push('/pages/production');
           return null;
         } else if (decodedToken.role === 'operador'){
-          router.push('/pages/operator');
+          router.push('/pages/Racks');
           return null;
         } else {
           console.log('Usted no tiene acceso jodase')

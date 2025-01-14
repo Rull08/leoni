@@ -1,7 +1,9 @@
-import Modal_endSession from "@/components/modal_endSession";
+import Board from "@/components/rack";
 
 export default function Production(){
     return(
-          <Modal_endSession />
+        <div className="container mx-auto p-4">
+          <Board />
+        </div>
     );
 }

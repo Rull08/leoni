@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { jwtDecode } from 'jwt-decode';
 
-import Modal_endSession from "@/components/modal_endSession";
+import Board from '@/components/kanban'
   
 const isTokenExpired = (token) => {
   try {
@@ -53,7 +53,7 @@ export default function Production () {
     return (
         <>
             {isOpenEndSession && (<Modal_endSession handleCloseModal={handleCloseModal} />)}
-            <ProductionGrid />   
+            <Board />   
         </>
     );
 };

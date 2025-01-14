@@ -16,24 +16,26 @@ const ProductionGrid = () => {
         { id: 3, title: 'User Interface Designer', department: 'Design', type: 'Full-time', location: 'Remote' },
       ]
 
-    useEffect(() => {
-        const getMaterials = async() => {
-            try{
-                const response = await api.get('/materials');
-                setMaterials(response.data);
-            } catch (error) {
-                setError('Error obteniendo materiales');
-                console.error(error);
-            }
-        };
-        getMaterials();
-    }, []);
+    //useEffect(() => {
+    //    const getMaterials = async() => {
+    //        try{
+    //            const response = await api.get('/materials');
+    //            setMaterials(response.data);
+    //        } catch (error) {
+    //            setError('Error obteniendo materiales');
+    //            console.error(error);
+    //        }
+    //    };
+    //    getMaterials();
+    //}, []);
 
     useEffect(() => {
         const getSearch = async() => {
             try{
-                const response = await api.get('/search');
-                setSearch(response.data);
+                const response = await api.get('/search',{
+                doe: 'KPK'
+                });
+                setMaterials(response.data);
             } catch (error) {
                 setError('Error obteniendo materiales');
                 console.error(error);
@@ -63,7 +65,9 @@ const ProductionGrid = () => {
                       onChange={(e) => setPartNum(e.target.value)}
                       className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Buscar"
                     />
-                    <button className='bg-blue-800 hover:bg-blue-900 text-white font-bold items-center py-2 px-4 rounded inline-flex' > 
+                    <button 
+                    className='bg-blue-800 hover:bg-blue-900 text-white font-bold items-center py-2 px-4 rounded inline-flex'
+                    > 
                         Buscar
                     </button>
                 </div>

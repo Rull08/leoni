@@ -15,7 +15,8 @@ def get_all_materials():
     return execute_query(query)
 
 def set_all_ubications():
-    query = "SELECT ub.*, i.num_parte, i.id_material FROM ubicaciones ub INNER JOIN inventario i ON ub.id_ubicacion = i.ubicacion;"
+    query = "SELECT m.*, r.nombre_rack FROM materiales m INNER JOIN ubicaciones u on m.ubicacion = u.id_ubicacion INNER JOIN racks r ON u.id_rack = r.ubicacion;"
+    #query = "SELECT ub.*, i.num_parte, i.id_material FROM ubicaciones ub INNER JOIN inventario i ON ub.id_ubicacion = i.ubicacion;"
     return execute_query(query)
 
 def add_material(types, part_num, serial_num, weight_quantity, long_quantity, operator, clasification, ubication, respuesta="N/A"):
@@ -35,8 +36,8 @@ def delete_material(data):
     return execute_procedure(StoredProcedures.DELETE_PRODUCT, params)
 
 def search_material(table, doe):
-    query = f"SELECT * FROM inventario WHERE num_parte LIKE '{doe}';"
-    query_fix = (query.replace(",", ""))
-    query_fixed = (query.replace("'", ""))
-    print(query_fix)
-    return execute_query(query_fixed)
+    query = f"SELECT * FROM inventario WHERE num_parte LIKE '%{doe}%';"
+    #query_fix = (query.replace(",", ""))
+    #query_fixed = (query.replace("'", ""))
+    print(query)
+    return execute_query(query)
