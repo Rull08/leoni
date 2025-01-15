@@ -1,9 +1,7 @@
-import Board from "@/components/rack";
+import Board from "@/components/rack_test";
 
 export default function Production(){
     return(
-        <div className="container mx-auto p-4">
           <Board />
-        </div>
     );
 }

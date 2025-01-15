@@ -4,21 +4,44 @@ import React, { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Disclosure, DisclosurePanel, DisclosureButton } from '@headlessui/react';
 
-const initialLists = {
-  list1: { id: 'list1', title: 'Lista 1', items: Array.from({ length: 5 }, (_, k) => ({ id: `item-${k}`, content: `Item ${k}` })) },
-  list2: { id: 'list2', title: 'Lista 2', items: Array.from({ length: 3 }, (_, k) => ({ id: `item-${k + 5}`, content: `Item ${k + 5}` })) },
+import api from '@/utils/api'
+
+const formatData = (data) => {
+  const grid = Array.from({ length: 10 }, () => Array(6).fill(null));
+
+  data.forEach((item) => {
+      const row = Math.floor(item.ubicacion / 10); // Fila (0-5)
+      const col = item.ubicacion % 10; // Columna (0-9)
+
+      if (grid[row] && grid[row][col] === null) {
+          grid[row][col] = {
+            id: item.id_material,
+            content: item.num_parte,
+            materials: [''] // Lista de materiales en la ubicación
+          };
+          // Agregar material a la ubicación si ya existe
+          if (grid[row] && grid[row][col]) {
+              grid[row][col].materials.push(item.num_parte);
+          }
+      }
+  });
+
+  return grid;
 };
 
-const Board = () => {
-  const [lists, setLists] = useState(initialLists);
 
+const Board = () => {
+  
+  const [lists, setLists] = useState([]);
+  const [expanded, setExpanded] = useState({}); 
+    
   useEffect(() => {
     const fetchData = async () => {
         try {
-            const response =  await fetch('/get_materials');
-            const data = await response.data;
-            const formattedLists = formatData(data);
-            setLists(formattedLists);
+          const response = await api.get('/ubications')
+          const data = await response.data;
+          const formattedLists = formatData(data);
+          setLists(formattedLists);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -26,72 +49,87 @@ const Board = () => {
     fetchData();
   }, []);
 
-  const formatData = (data) => {
-    const fromatted = {};
-    data.forEach((rack) => {
-        fromatted[rack.id] = {
-            id: rack.id,
-            tittle: rack.title,
-            items: rack.items.map((item) => ({id:item.id, content: item.content}))
-        }
-    });
-    return fromatted;
-  };
-
   const onDragEnd = (result) => {
     const { source, destination } = result;
     if (!destination) return;
 
-    const sourceList = lists[source.droppableId];
-    const destList = lists[destination.droppableId];
-    const [movedItem] = sourceList.items.splice(source.index, 1);
-    destList.items.splice(destination.index, 0, movedItem);
+    const sourceRow = Math.floor(source.droppableId / 10);
+    const sourceCol = source.droppableId % 10;
+    const destRow = Math.floor(destination.droppableId / 10);
+    const destCol = destination.droppableId % 10;
 
-    setLists({
-      ...lists,
-      [sourceList.id]: sourceList,
-      [destList.id]: destList,
-    });
+    const [movedItem] = lists[sourceRow][sourceCol].splice(source.index, 1);
+    lists[destRow][destCol].splice(destination.index, 0, movedItem);
+
+    setLists([...lists]);
   };
+
+
+
+  const toggleExpand = (rowIndex, colIndex) => {
+    const key = `${rowIndex}-${colIndex}`;
+    setExpanded((prev) => ({
+        ...prev,
+        [key]: !prev[key], // Cambiar el estado de expansión de la ubicación
+    }));
+  };
+
+  if (lists.length === 0) {
+    return <div>Cargando...</div>;
+  }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="flex space-x-4">
-        {Object.values(lists).map((list) => (
-            <Droppable key={list.id} droppableId={list.id} isDropDisabled={false} isCombineEnabled={true} ignoreContainerClipping={true}>
-                {(provided) => (
-                <div ref={provided.innerRef} {...provided.droppableProps} className="w-64 p-4 bg-gray-100 rounded-md">
-                    <Disclosure>
-                        {({ open }) => (
-                            <div>
-                            <DisclosureButton className="w-full text-left font-medium">
-                                {list.title} {open ? '-' : '+'}
-                            </DisclosureButton>
-                            <DisclosurePanel as="div" className="mt-2">
-                                {list.items.map((item, index) => (
-                                    <Draggable key={item.id} draggableId={item.id} index={index}>
-                                        {(provided) => (
-                                         <div
-                                             ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            {...provided.dragHandleProps}
-                                            className="p-2 mb-2 bg-white rounded shadow"
-                                        >
-                                            {item.content}
-                                        </div>
+        <div className="grid grid-cols-10 gap-4">
+            {lists.map((row, rowIndex) => (
+                <div key={`row-${rowIndex}`} className="">
+                    {row.map((item, colIndex) => (
+                        <Droppable
+                            key={`droppable-${rowIndex}-${colIndex}`} // Asegúrate de que la clave sea única
+                            droppableId={`${rowIndex * 10 + colIndex}`}
+                            isDropDisabled = {false}
+                            isCombineEnabled = {true}
+                            ignoreContainerClipping = {true}
+                        >
+                            {(provided) => (
+                                <div
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}
+                                    className="w-16 h-16 p-2 bg-gray-200 border-2 border-gray-300 rounded-md"
+                                >
+                                    <Disclosure>
+                                        {({ open }) => (
+                                            <div>
+                                                <DisclosureButton
+                                                    className="w-full text-left font-medium"
+                                                    onClick={() => toggleExpand(rowIndex, colIndex)}
+                                                >
+                                                    Ubicación {rowIndex * 10 + colIndex}
+                                                    {open ? '-' : '+'}
+                                                </DisclosureButton>
+                                                {expanded[`${rowIndex}-${colIndex}`] && (
+                                                    <DisclosurePanel as="div" className="mt-2">
+                                                        {item.materials.length === 0 ? (
+                                                            <div>No hay materiales</div>
+                                                        ) : (
+                                                            item.materials.map((material, index) => (
+                                                                <div key={index} className="p-2 mb-2 bg-white rounded shadow">
+                                                                    {material}
+                                                                </div>
+                                                            ))
+                                                        )}
+                                                    </DisclosurePanel>
+                                                )}
+                                            </div>
                                         )}
-                                    </Draggable>
-                                ))}
-                                {provided.placeholder}
-                            </DisclosurePanel>
-                            </div>
-                        )}
-                    </Disclosure>
+                                    </Disclosure>
+                                </div>
+                            )}
+                        </Droppable>
+                    ))}
                 </div>
-            )}
-          </Droppable>
-        ))}
-      </div>
+            ))}
+        </div>
     </DragDropContext>
   );
 };

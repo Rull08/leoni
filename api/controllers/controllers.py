@@ -37,13 +37,21 @@ def get_materials():
 
 def set_ubications():
     ubication = set_all_ubications()
+    print(ubication)
     if ubication:
         return jsonify([{
-            "estado": row[1],
-            "columna": row[2],
-            "fila": row[3],
-            "num_parte": row[4],
-            "id_ubicacion": row[5]
+            "id_material": row[0], 
+            "clasificacion": row[1], 
+            "num_parte": row[2], 
+            "numero_serie": row[3], 
+            "cant_kilos": row[4], 
+            "cant_metros": row[5],
+            "user": row[6], 
+            "ubicacion": row[7], 
+            "tipo": row[8], 
+            "fecha_produccion": row[9].strftime("%d/%m/%Y") if row[9] else None,
+            "fecha_entrada": row[10].strftime("%d/%m/%Y") if row[10] else None,
+            "nombre_rack": row[11]
             } for row in ubication])
     return jsonify({'error': 'Ubications not found'}), 404
 

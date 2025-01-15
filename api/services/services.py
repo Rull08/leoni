@@ -15,7 +15,7 @@ def get_all_materials():
     return execute_query(query)
 
 def set_all_ubications():
-    query = "SELECT m.*, r.nombre_rack FROM materiales m INNER JOIN ubicaciones u on m.ubicacion = u.id_ubicacion INNER JOIN racks r ON u.id_rack = r.ubicacion;"
+    query = "SELECT m.*, r.nombre_rack FROM materiales m INNER JOIN ubicaciones u on m.ubicacion = u.id_ubicacion INNER JOIN racks r ON u.id_rack = r.id_rack;"
     #query = "SELECT ub.*, i.num_parte, i.id_material FROM ubicaciones ub INNER JOIN inventario i ON ub.id_ubicacion = i.ubicacion;"
     return execute_query(query)
 
@@ -24,7 +24,7 @@ def add_material(types, part_num, serial_num, weight_quantity, long_quantity, op
     params_list = [item[0]  if isinstance(item, tuple) else item for item in flatter_params]
     params = tuple(params_list)
     result = execute_procedure(StoredProcedures.ADD_MATERIAL, params)
-    print(f"Respuesta {result}")
+    print(f"Respuesta: {result}")
     return None
 
 def update_product(product_id, name, quantity, price):
