@@ -6,7 +6,7 @@ routes_bp.route('/login', methods=['POST'])(login)
 routes_bp.route('/entry', methods=['POST'])(add_materials) 
 
 routes_bp.route('/materials', methods=['GET'])(get_materials)
-routes_bp.route('/ubications', methods=['GET'])(set_ubications)
+routes_bp.route('/ubications', methods=['POST'])(set_ubications)
 
 routes_bp.route('/output', methods=['DELETE'])(delete_material)
 

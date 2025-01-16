@@ -13,9 +13,11 @@ const Board = () => {
     // Función para obtener datos de la API
     const fetchData = async () => {
       try {
-        const response = await api.get('/ubications')
+        const response = await api.post('/ubications', {rack_name: 'Cables Especiales'})
         const data = response.data;
-        console.log(data)
+        const espacios = data.count.map(item => item.id_ubicacion);
+        const maxEspacios = Math.max(...espacios);
+        console.log(maxEspacios);
         const formattedLists = formatData(data);
         setLists(formattedLists);
       } catch (error) {
@@ -27,19 +29,24 @@ const Board = () => {
   }, []);
 
   const formatData = (data) => {
-    const formatted = {};
+    const formatted = [];
+    const ubicaciones = data.count.reduce((acc, item) => {
+        acc[item.id_ubicacion] = item.nombre_ubicacion;
+        return acc;
+    }, {});
+    
+    const maxEspacios = Math.max(...Object.keys(ubicaciones).map(Number)) + 1;
 
-    // Crear 60 espacios fijos
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < maxEspacios; i++) {
+        const nombreUbicacion = ubicaciones[i] || `Ubicación ${i}`;
         formatted[i] = {
             id: i.toString(),
-            title: `Ubicación ${i}`,
+            title: nombreUbicacion,
             items: []
         };
     }
 
-    // Agregar los materiales a las ubicaciones correspondientes
-    data.forEach((item) => {
+    data.materials.forEach((item) => {
         const location = item.ubicacion;
         if (formatted[location]) {
             formatted[location].items.push({
@@ -50,7 +57,7 @@ const Board = () => {
     });
 
     return formatted;
-  };
+};
 
   const onDragEnd = (result) => {
     const { source, destination } = result;
@@ -68,40 +75,51 @@ const Board = () => {
     });
   };
 
+
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="grid grid-cols-10 grid-rows-6 gap-4 size-full">
         {Object.values(lists).map((list) => (
-          <Droppable key={list.id} 
-            droppableId={list.id} 
-            isDropDisabled = {false}
-            isCombineEnabled = {true}
-            ignoreContainerClipping = {true}
-        >
+          <Droppable key={`droppable-${list.id}`} 
+          droppableId={list.id}
+          isDropDisabled = {false}
+          isCombineEnabled = {true}
+          ignoreContainerClipping = {true}
+          >
             {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps} className="w-auto p-2 bg-gray-100 rounded-md">
+              <div ref={provided.innerRef} {...provided.droppableProps} className="relative w-auto p-2 bg-gray-100 rounded-md">
                 <Disclosure>
                   {({ open }) => (
-                    <div>
-                      <DisclosureButton className="w-full text-left font-medium text-xs">
+                    <div className="relative">
+                      <DisclosureButton className="w-full justify-center font-medium text-xs">
                         {list.title} {open ? '-' : '+'}
                       </DisclosureButton>
-                      <DisclosurePanel as="div" className="mt-2">
-                        {list.items.map((item, index) => (
-                          <Draggable key={item.id} draggableId={item.id} index={index}>
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className="p-2 mb-2 bg-white rounded shadow text-xs"
-                              >
-                                {item.content}
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
+                      <DisclosurePanel
+                        as="div"
+                        className={`size-max absolute top-8 left-0 right-0 bg-gray-50 rounded shadow-lg transition-all duration-300 overflow-hidden z-10`}
+                        style={{
+                          height: open ? `${list.items.length * 50}px` : '0px',
+                        }}
+                      >
+                        <div className="p-2">
+                          {list.items && list.items.map((item, index) => (
+                            item && item.id ? (
+                            <Draggable key={`draggable-${item.id}`} draggableId={item.id} index={index}>
+                              {(provided) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  className="p-2 mb-2 bg-white rounded shadow text-xs"
+                                >
+                                  {item.content}
+                                </div>
+                              )}
+                            </Draggable>
+                            ) : null
+                          ))}
+                          {provided.placeholder}
+                        </div>
                       </DisclosurePanel>
                     </div>
                   )}

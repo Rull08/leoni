@@ -28,7 +28,7 @@ export default function Login() {
             autenticacion: false,
           }
         );
-
+        
         const { access_token } = response.data;
         localStorage.setItem('token', access_token); 
         

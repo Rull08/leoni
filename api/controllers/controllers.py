@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from services.services import login_user, get_all_materials, set_all_ubications, add_material, delete_material, search_material
+from services.services import login_user, get_all_materials, set_all_ubications, add_material, delete_material, search_material, count_ubicactions
 from flask_jwt_extended import create_access_token
 from datetime import datetime
 #from models.models import User
@@ -36,10 +36,13 @@ def get_materials():
     return jsonify({'error': 'Products not found'}), 404
 
 def set_ubications():
+    data = request.get_json()
     ubication = set_all_ubications()
+    count  = count_ubicactions(data['rack_name'])
+    print(f"total: {count}")
     print(ubication)
     if ubication:
-        return jsonify([{
+        material_list = [{
             "id_material": row[0], 
             "clasificacion": row[1], 
             "num_parte": row[2], 
@@ -51,8 +54,22 @@ def set_ubications():
             "tipo": row[8], 
             "fecha_produccion": row[9].strftime("%d/%m/%Y") if row[9] else None,
             "fecha_entrada": row[10].strftime("%d/%m/%Y") if row[10] else None,
-            "nombre_rack": row[11]
-            } for row in ubication])
+            "nombre_rack": row[11],
+            "nombre_ubicacion": row[12]
+            } for row in ubication]
+        
+        slots_count = [{
+            "id_ubicacion": row[0],
+            "nombre_ubicacion": row[1],
+            "capacidad_maxima": row[2],
+            "estado": row[3]
+            } for row in count] 
+        
+        result = {
+            "materials": material_list,
+            "count": slots_count 
+        }
+        return jsonify(result)
     return jsonify({'error': 'Ubications not found'}), 404
 
 def add_materials():

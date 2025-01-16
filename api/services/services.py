@@ -15,8 +15,13 @@ def get_all_materials():
     return execute_query(query)
 
 def set_all_ubications():
-    query = "SELECT m.*, r.nombre_rack FROM materiales m INNER JOIN ubicaciones u on m.ubicacion = u.id_ubicacion INNER JOIN racks r ON u.id_rack = r.id_rack;"
+    query = "SELECT m.*, r.nombre_rack, u.nombre_ubicacion FROM materiales m INNER JOIN ubicaciones u on m.ubicacion = u.id_ubicacion INNER JOIN racks r ON u.id_rack = r.id_rack;"
     #query = "SELECT ub.*, i.num_parte, i.id_material FROM ubicaciones ub INNER JOIN inventario i ON ub.id_ubicacion = i.ubicacion;"
+    return execute_query(query)
+
+def count_ubicactions(rack_name):
+    query = f"SELECT u.id_ubicacion, u.nombre_ubicacion, u.capacidad_maxima, u.estado FROM ubicaciones u INNER JOIN racks r ON u.id_rack = r.id_rack  WHERE r.nombre_rack = '{rack_name}';"
+    print(query)
     return execute_query(query)
 
 def add_material(types, part_num, serial_num, weight_quantity, long_quantity, operator, clasification, ubication, respuesta="N/A"):
