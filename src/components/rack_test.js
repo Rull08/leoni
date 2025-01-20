@@ -24,7 +24,6 @@ const Board = () => {
         console.error('Error fetching data:', error);
       }
     };
-
     fetchData();
   }, []);
 
@@ -91,12 +90,12 @@ const Board = () => {
                 <Disclosure>
                   {({ open }) => (
                     <div className="relative">
-                      <DisclosureButton className="w-full justify-center font-medium text-xs">
+                      <DisclosureButton className="w-full h-full justify-center font-medium text-3xl">
                         {list.title} {open ? '-' : '+'}
                       </DisclosureButton>
                       <DisclosurePanel
                         as="div"
-                        className={`size-max absolute top-8 left-0 right-0 bg-gray-50 rounded shadow-lg transition-all duration-300 overflow-hidden z-10`}
+                        className={`size-max absolute top-8 left-0 right-44 bg-gray-50 rounded shadow-lg transition-all duration-300 overflow-hidden z-10`}
                         style={{
                           height: open ? `${list.items.length * 50}px` : '0px',
                         }}

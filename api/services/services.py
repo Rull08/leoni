@@ -40,9 +40,8 @@ def delete_material(data):
     params = (data)
     return execute_procedure(StoredProcedures.DELETE_PRODUCT, params)
 
-def search_material(table, doe):
-    query = f"SELECT * FROM inventario WHERE num_parte LIKE '%{doe}%';"
-    #query_fix = (query.replace(",", ""))
-    #query_fixed = (query.replace("'", ""))
-    print(query)
-    return execute_query(query)
+def search_material(doe):
+    params = (doe,)
+    query = f" SELECT * FROM {StoredProcedures.SEARCH_MATERIAL}(%s)"
+    print(params)
+    return execute_query(query, params)

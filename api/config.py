@@ -20,4 +20,4 @@ class StoredProcedures:
     DELETE_MATERIAL = os.getenv('DELETE_MATERIAL')
     LOGIN_USER = os.getenv('LOGIN_USER')
     GET_MATERIAL = os.getenv('GET_MATERIAL')
-    
+    SEARCH_MATERIAL = os.getenv('SEARCH_MATERIAL')

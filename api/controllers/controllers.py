@@ -23,15 +23,16 @@ def get_materials():
     if material:
         return jsonify([{
             "id_material": row[0], 
-            "nombre_clasificacion": row[1], 
-            "num_parte": row[2], 
-            "numero_serie": row[3], 
+            "num_parte": row[1], 
+            "num_serie": row[2], 
+            "nombre_clasificacion": row[3], 
             "cant_kilos": row[4], 
             "cant_metros": row[5],
             "user": row[6], 
             "ubicacion": row[7], 
             "tipo": row[8], 
-            "fecha_produccion": row[9].strftime("%d/%m/%Y") if row[9] else None
+            "fecha_produccion": row[9],#.strftime("%d/%m/%Y") if row[9] else None,
+            "fecha_entrada": row[10],#.strftime("%d/%m/%Y") if row[10] else None
             } for row in material])
     return jsonify({'error': 'Products not found'}), 404
 
@@ -95,9 +96,8 @@ def delete_material():
 
 def set_search_materials():
     data = request.get_json()
-    table = data['table'],
     doe = data['obj']
-    material = search_material(table, doe)
+    material = search_material(doe)
     if material:
         return jsonify([{
             "id_material": row[0], 

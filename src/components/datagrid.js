@@ -3,11 +3,17 @@ import React from 'react'
 import { useEffect, useState } from 'react';
 import { AiOutlineEdit, AiOutlineDelete, AiOutlineDownload, AiOutlineSortAscending, AiOutlineDown } from 'react-icons/ai';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
+
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
+import { format } from 'date-fns';
 import api from '@/utils/api';
+
 
 const ProductionGrid = () => {
     const [materials, setMaterials] = useState([]);
-    const [search, setSearch] = useState([]);
+    const [searchText, setSearchText] = useState('');
+    const [sortOrder, setSortOrder] = useState('asc');
     const [error, setError] = useState(null);
 
     const items = [
@@ -16,41 +22,151 @@ const ProductionGrid = () => {
         { id: 3, title: 'User Interface Designer', department: 'Design', type: 'Full-time', location: 'Remote' },
       ]
 
-    //useEffect(() => {
-    //    const getMaterials = async() => {
-    //        try{
-    //            const response = await api.get('/materials');
-    //            setMaterials(response.data);
-    //        } catch (error) {
-    //            setError('Error obteniendo materiales');
-    //            console.error(error);
-    //        }
-    //    };
-    //    getMaterials();
-    //}, []);
-
     useEffect(() => {
-        const getSearch = async() => {
+        const getMaterials = async() => {
             try{
-                const response = await api.get('/search',{
-                doe: 'KPK'
-                });
+                const response = await api.get('/materials');
                 setMaterials(response.data);
             } catch (error) {
                 setError('Error obteniendo materiales');
                 console.error(error);
             }
         };
-        getSearch();
+        getMaterials();
     }, []);
 
-    const downloadCSV = () => {
-        alert('Downloading CSV...');
-    };
+    const handleSortBySearch = () =>  {
+      const getSearch = async () => {
+          try {
+              const response = await api.post('/search', {
+                  obj: searchText,
+              });
+              setMaterials(response.data);
+          } catch (error) {
+              setError('Error obteniendo materiales');
+              console.error(error);
+          }
+      };
+          getSearch();
+  };
+
+// Función para exportar los datos a Excel
+const exportToExcel = async (data) => {
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Materials');
+
+    // Definir las columnas del Excel
+    worksheet.columns = [
+      { header: 'ID', key: 'id', width: 10 },
+      { header: 'Numero de Parte', key: 'num_parte', width: 50},
+      { header: 'Numero de Serie', key: 'num_serie', width: 10 },
+      { header: 'Clasificacion', key: 'clasificacion', width: 10 },
+      { header: 'Cantidad en Kilos', key: 'kilos', width: 10 },
+      { header: 'Cantidad en Metros', key: 'metros', width: 10 },
+      { header: 'Usuario', key: 'usuario', width: 10 },
+      { header: 'Ubicacion', key: 'ubicacion', width: 10 },
+      { header: 'Tipo', key: 'tipo', width: 50 },
+      { header: 'Fecha de Produccion', key: 'fecha_produccion', width: 10 },
+      { header: 'Fecha de Entrada', key: 'fecha_entrada', width: 10 },
+    ];
+
+    worksheet.columns.forEach((column) => {
+      let maxLength = 0;
+      column.eachCell({ includeEmpty: true }, (cell) => {
+        const cellValue = cell.value ? String(cell.value) : '';
+        maxLength = Math.max(maxLength, cellValue.length);
+      });
+      // Ajustar el ancho de la columna para que se ajuste al contenido
+      column.width = maxLength + 2; // Agregar un poco de margen
+    });
+   worksheet.getRow(1).eachCell((cell) => {
+      cell.font = { color: { argb: 'FFFFFF' }, bold: true }; 
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '0000FF' } }; 
+      cell.alignment = { horizontal: 'center', vetical:'center', wrapText: true }; 
+    });
+
+    data.forEach((item) => {
+      const formattedProductionDate = format(new Date(item.fecha_produccion), 'yyyy-MM-dd'); 
+      const formatteEntryDate = format(new Date(item.fecha_entrada), 'yyyy-MM-dd'); 
+
+      worksheet.addRow({ 
+        id: item.id_material, 
+        num_parte: item.num_parte, 
+        num_serie: item.num_serie, 
+        clasificacion: item.nombre_clasificacion,
+        kilos: item.cant_kilos,
+        metros: item.cant_metros,
+        usuario: item.user,
+        ubicacion: item.ubicacion,
+        tipo: item.tipo,
+        fecha_produccion: formattedProductionDate,
+        fecha_entrada: formatteEntryDate
+      });
+    });
+
+    // Escribir el archivo en formato buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    // Crear un Blob con el buffer
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+
+    // Usar FileSaver.js para guardar el archivo
+    saveAs(blob, 'Materiales.xlsx');
+  } catch (error) {
+    console.error('Error al exportar el archivo Excel:', error);
+  }
+};
+
+// Botón para exportar los datos a Excel
+const handleExport = () => {
+  if (materials.length > 0) {
+    exportToExcel(materials); // Llamar a la función para exportar los datos
+  } else {
+    alert('No hay datos para exportar');
+  }
+};
 
     const handleSortByName = () => {
-        console.log('Sorting by name...');
+      const sortedMaterials = [...materials].sort((a, b) => {
+          if (sortOrder === 'asc') {
+              return a.num_parte.localeCompare(b.num_parte);
+          } else {
+              return b.num_parte.localeCompare(a.num_parte);
+          }
+      });
+      setMaterials(sortedMaterials);
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     };
+
+    const handleSortByDate = () => {
+        const sortedMaterials = [...materials].sort((a, b) => {
+            const dateA = new Date(a.fecha_produccion); // Reemplaza 'fecha' con el nombre de tu propiedad de fecha
+            const dateB = new Date(b.fecha_produccion); // Reemplaza 'fecha' con el nombre de tu propiedad de fecha
+            if (sortOrder === 'asc') {
+                return dateA - dateB;
+            } else {
+                return dateB - dateA;
+            }
+        });
+        setMaterials(sortedMaterials);
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    };
+    
+    const handleSortByUbication = () => {
+      const sortedMaterials = [...materials].sort((a, b) => {
+          if (sortOrder === 'asc') {
+              return a.ubicacion.localeCompare(b.ubicacion);
+          } else {
+              return b.ubicacion.localeCompare(a.ubicacion);
+          }
+      });
+      setMaterials(sortedMaterials);
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    };
+
 
     return (
         <>
@@ -61,12 +177,14 @@ const ProductionGrid = () => {
                       id="consulata"
                       name="consulta"
                       type="text"
-                      value={undefined}
-                      onChange={(e) => setPartNum(e.target.value)}
+                      value={searchText}
+                      onChange={(e) => setSearchText(e.target.value)}
                       className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Buscar"
                     />
+                    {error && <div>{error}</div>}
                     <button 
                     className='bg-blue-800 hover:bg-blue-900 text-white font-bold items-center py-2 px-4 rounded inline-flex'
+                    onClick={handleSortBySearch}
                     > 
                         Buscar
                     </button>
@@ -75,18 +193,21 @@ const ProductionGrid = () => {
                     <button onClick={handleSortByName} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
                         <AiOutlineSortAscending className='mr-2' /> Ordenar por Nombre
                     </button>
-                    <button onClick={handleSortByName} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
-                        <AiOutlineDown className='mr-2' /> Ordenar por Ubicación
+                    <button onClick={handleSortByDate} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
+                        <AiOutlineDown className='mr-2' /> Ordenar por Fecha
+                    </button>
+                    <button onClick={handleSortByUbication} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
+                        <AiOutlineDown className='mr-2' /> Ordenar por Ubicacion
                     </button>
                     </div>
                 </div>
             </div>
-            <div className=''>
-                <div className='p-2'>
+            <div className='w-full'>
+                <div className='p-2 '>
                     <div className='overflow-x-auto'>
                         {error && <p>{error}</p>}
                         {!error && materials.length > 0 && (
-                            <table className='max-w-full table-auto'>
+                            <table className='min-w-full table-auto'>
                                 <thead className='bg-blue-800'>
                                     <tr className='text-white'>
                                         <th className='px-4 py-2'>id</th>
@@ -98,7 +219,8 @@ const ProductionGrid = () => {
                                         <th className='px-4 py-2'>Clasificacion</th>
                                         <th className='px-4 py-2'>Tipo</th>
                                         <th className='px-4 py-2'>Ubicación</th>
-                                        <th className='px-4 py-2'>Fecha de produccion</th>
+                                        <th className='px-4 py-2'>Fecha de Produccion</th>
+                                        <th className='px-4 py-2'>Fecha de Entrada</th>
                                     </tr>
                                 </thead>
                                 <tbody className='divide-y divide-gray-200'>
@@ -116,7 +238,7 @@ const ProductionGrid = () => {
                                             </td>
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
-                                                    {material.numero_serie}
+                                                    {material.num_serie}
                                                 </div>
                                             </td>
                                             <td className='px-4 py-2'>
@@ -152,7 +274,12 @@ const ProductionGrid = () => {
                                     
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
-                                                    {material.fecha_produccion}
+                                                  {format(new Date(material.fecha_produccion), 'dd/MM/yyyy')}
+                                                </div>
+                                            </td>
+                                            <td className='px-4 py-2'>
+                                                <div className='flex items-center justify-center h-full'>
+                                                  {format(new Date(material.fecha_entrada), 'dd/MM/yyyy')}
                                                 </div>
                                             </td>
                                         </tr>
@@ -161,11 +288,12 @@ const ProductionGrid = () => {
                             </table>
                         )}
                     </div>
-                    <div className='p-4'>        
-                        <button onClick={downloadCSV} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
-                            <AiOutlineDownload className='mr-12' /> Exportar Excel
-                        </button>
-                    </div>
+                </div>
+            </div>
+            <div className='p-4'>        
+                    <button onClick={handleExport} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
+                        <AiOutlineDownload className='mr-12' /> Exportar Excel
+                    </button>
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
                   <div className="flex flex-1 justify-between sm:hidden">
@@ -249,7 +377,6 @@ const ProductionGrid = () => {
                       </nav>
                     </div>
                   </div>
-                </div>
             </div>
         </>
     );
