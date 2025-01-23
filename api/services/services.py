@@ -9,19 +9,32 @@ def login_user(user_name, user_password, user_rol, autenticacion):
         return Login(user_name, user_password, result[0][0], result[0][1])
     return None
 
-def get_all_materials():
-    #query = "SELECT * FROM inventario"
-    query = f"SELECT * FROM {StoredProcedures.GET_MATERIAL}()"
-    return execute_query(query)
+def get_all_materials(page, limit, sort_field, sort_order):
+    if limit == 'all':
+        offset = 0  
+    else:
+        offset = (page - 1) * limit
+        
+    query = f"SELECT * FROM {StoredProcedures.GET_MATERIAL}() ORDER BY {sort_field} {sort_order} LIMIT {limit} OFFSET {offset}"
+    print(query)
+    materials = execute_query(query)
+    
+    count_query = f"SELECT COUNT(*) FROM {StoredProcedures.GET_MATERIAL}()"
+    total_items = execute_query(count_query)[0][0]
+    
+    return materials, total_items
+
+def search_material(doe):
+    params = (doe,)
+    query = f" SELECT * FROM {StoredProcedures.SEARCH_MATERIAL}(%s)"
+    return execute_query(query, params)
 
 def set_all_ubications():
     query = "SELECT m.*, r.nombre_rack, u.nombre_ubicacion FROM materiales m INNER JOIN ubicaciones u on m.ubicacion = u.id_ubicacion INNER JOIN racks r ON u.id_rack = r.id_rack;"
-    #query = "SELECT ub.*, i.num_parte, i.id_material FROM ubicaciones ub INNER JOIN inventario i ON ub.id_ubicacion = i.ubicacion;"
     return execute_query(query)
 
 def count_ubicactions(rack_name):
-    query = f"SELECT u.id_ubicacion, u.nombre_ubicacion, u.capacidad_maxima, u.estado FROM ubicaciones u INNER JOIN racks r ON u.id_rack = r.id_rack  WHERE r.nombre_rack = '{rack_name}';"
-    print(query)
+    query = f"SELECT u.id_ubicacion, u.nombre_ubicacion, u.capacidad_maxima, u.estado, r.nombre_rack FROM ubicaciones u INNER JOIN racks r ON u.id_rack = r.id_rack  WHERE r.nombre_rack = '{rack_name}';"
     return execute_query(query)
 
 def add_material(types, part_num, serial_num, weight_quantity, long_quantity, operator, clasification, ubication, respuesta="N/A"):
@@ -39,9 +52,3 @@ def update_product(product_id, name, quantity, price):
 def delete_material(data): 
     params = (data)
     return execute_procedure(StoredProcedures.DELETE_PRODUCT, params)
-
-def search_material(doe):
-    params = (doe,)
-    query = f" SELECT * FROM {StoredProcedures.SEARCH_MATERIAL}(%s)"
-    print(params)
-    return execute_query(query, params)

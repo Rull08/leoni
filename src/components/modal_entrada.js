@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import api from '@/utils/api'
 
-const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) => {
+const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, ubication }) => {
     const [part_Num, setPartNum] = useState('');
     const [serial_Num, setSerialNum] = useState('');
     const [weight_Quantity, setWeightQuantity] = useState('');
@@ -14,8 +14,6 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
     const [Types, setTypes] = useState('');
     const [Ubication, setUbication] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    
-    const columnMap = { 0: "A", 1: "B", 2: "C", 3: "D" };
     
     const handelEntry = async (e) => {
         e.preventDefault();
@@ -43,19 +41,9 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
         }
     };
 
-    const getUbicationName = (row, col) => {
-        if (typeof row === "number" || typeof col === "number") {
-            const columnName = columnMap[col]; 
-            if (!columnName) return "Ubicación inválida"; 
-            return `${columnName}${row + 1}`; 
-        } else
-            return "Ubicación";
-    };
-    
     useEffect(() => {
-        const value = getUbicationName(row, col);
-        setUbication(value)
-    }, [row, col]);
+        setUbication(ubication)
+    }, []);
 
     if(!isOpen) return null;
 
@@ -92,7 +80,8 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
                                           type="text"
                                           value={part_Num}
                                           onChange={(e) => setPartNum(e.target.value)}
-                                          className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Número de Parte"
+                                          className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
+                                          placeholder="Número de Parte"
                                         />
                                     </div>
                                 </div>
@@ -107,7 +96,8 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
                                         type="text"
                                         value={serial_Num}
                                         onChange={(e) => setSerialNum(e.target.value)}
-                                        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Número de Serie"
+                                        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
+                                        placeholder="Número de Serie"
                                         />
                                     </div> 
                                 </div>
@@ -122,7 +112,8 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
                                         type="text"
                                         value={weight_Quantity}
                                         onChange={(e) => setWeightQuantity(e.target.value)}
-                                        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Cantidad en Kilos"
+                                        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
+                                        placeholder="Cantidad en Kilos"
                                         />
                                     </div> 
                                 </div>
@@ -137,7 +128,8 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
                                           type="text"
                                           value={long_Quantity}
                                           onChange={(e) => setLongQuantity(e.target.value)}
-                                          className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Cantidad en Metros"
+                                          className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
+                                          placeholder="Cantidad en Metros"
                                         />
                                     </div> 
                                 </div>
@@ -153,7 +145,8 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
                                               type="text"
                                               value={Operator}
                                               onChange={(e) => setOperator(e.target.value)}
-                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Operador"
+                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
+                                              placeholder="Operador"
                                             />
                                         </div> 
                                     </div>
@@ -168,7 +161,8 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
                                             type="text"
                                             value={Ubication}
                                             onChange={(e) => setUbication(e.target.value)}
-                                            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder={getUbicationName(row, col)}
+                                            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
+                                            placeholder={Ubication}
                                             />
                                         </div> 
                                     </div>
@@ -185,7 +179,8 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
                                               type="text"
                                               value={Clasification}
                                               onChange={(e) => setClasification(e.target.value)}
-                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Clasificacion"
+                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
+                                              placeholder="Clasificacion"
                                             />
                                         </div> 
                                     </div>
@@ -200,7 +195,8 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
                                               type="text"
                                               value={Types}
                                               onChange={(e) => setTypes(e.target.value)}
-                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Tipo"
+                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
+                                              placeholder="Tipo"
                                             />
                                         </div> 
                                     </div>

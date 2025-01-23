@@ -4,8 +4,6 @@ import { useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 
-
-
 export default function Modal_endSession({ handleCloseModal }) {
   const [isOpen, setIsOpen] = useState(true)       
 

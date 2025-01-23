@@ -1,7 +1,6 @@
 from flask import request, jsonify
 from services.services import login_user, get_all_materials, set_all_ubications, add_material, delete_material, search_material, count_ubicactions
 from flask_jwt_extended import create_access_token
-from datetime import datetime
 #from models.models import User
 
 def login():
@@ -19,7 +18,49 @@ def login():
         return jsonify({'error': 'Invalid User'}), 401
 
 def get_materials():
-    material = get_all_materials()
+    page = request.args.get('page', 1, type=int)
+    
+    limit = request.args.get('limit', 10)
+    if limit.isdigit():  
+        limit = int(limit)  
+    elif limit.lower() == 'all':
+        limit = 'all'
+    
+    sort_field = request.args.get('sort_field', 'id_material')
+    sort_order = request.args.get('sort_order', 'asc')
+    
+    print(f"Page: {page} limit: {limit} Campo: {sort_field} Order: {sort_order}")
+    material, total_items = get_all_materials(page, limit, sort_field, sort_order)
+    
+    if limit == 'all':
+        limit = 1   
+                                  
+    if material:
+        return jsonify({
+            "materials":[{
+                "id_material": row[0], 
+                "num_parte": row[1], 
+                "num_serie": row[2], 
+                "nombre_clasificacion": row[3], 
+                "cant_kilos": row[4], 
+                "cant_metros": row[5],
+                "user": row[6], 
+                "ubicacion": row[7], 
+                "tipo": row[8], 
+                "fecha_produccion": row[9],
+                "fecha_entrada": row[10],
+            } for row in material],
+            "total_items": total_items,
+            "total_pages": (total_items + limit - 1) // limit,
+            "current_page": page
+        }), 200
+    return jsonify({'error': 'Products not found'}), 404
+
+
+def set_search_materials():
+    data = request.get_json()
+    doe = data['obj']
+    material = search_material(doe)
     if material:
         return jsonify([{
             "id_material": row[0], 
@@ -31,10 +72,10 @@ def get_materials():
             "user": row[6], 
             "ubicacion": row[7], 
             "tipo": row[8], 
-            "fecha_produccion": row[9],#.strftime("%d/%m/%Y") if row[9] else None,
-            "fecha_entrada": row[10],#.strftime("%d/%m/%Y") if row[10] else None
+            "fecha_produccion": row[9],
+            "fecha_entrada": row[10],
             } for row in material])
-    return jsonify({'error': 'Products not found'}), 404
+    return jsonify({'error': 'Products not found'}), 204
 
 def set_ubications():
     data = request.get_json()
@@ -47,7 +88,7 @@ def set_ubications():
             "id_material": row[0], 
             "clasificacion": row[1], 
             "num_parte": row[2], 
-            "numero_serie": row[3], 
+            "num_serie": row[3], 
             "cant_kilos": row[4], 
             "cant_metros": row[5],
             "user": row[6], 
@@ -63,7 +104,8 @@ def set_ubications():
             "id_ubicacion": row[0],
             "nombre_ubicacion": row[1],
             "capacidad_maxima": row[2],
-            "estado": row[3]
+            "estado": row[3],
+            "nombre_rack": row[4]
             } for row in count] 
         
         result = {
@@ -93,28 +135,3 @@ def delete_material():
     print(data)
     result = delete_material(data)
     return jsonify(result)
-
-def set_search_materials():
-    data = request.get_json()
-    doe = data['obj']
-    material = search_material(doe)
-    if material:
-        return jsonify([{
-            "id_material": row[0], 
-            "nombre_clasificacion": row[1], 
-            "num_parte": row[2], 
-            "numero_serie": row[3], 
-            "cant_kilos": row[4], 
-            "cant_metros": row[5],
-            "user": row[6], 
-            "ubicacion": row[7], 
-            "tipo": row[8], 
-            "fecha_produccion": row[9].strftime("%d/%m/%Y") if row[9] else None
-            } for row in material])
-    return jsonify({'error': 'Products not found'}), 404
-
-#def output_material(product_id):
-    result = delete_product(product_id)
-    return jsonify(result)
-
-
