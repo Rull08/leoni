@@ -4,7 +4,7 @@ import React from 'react';
 import { AiOutlineDownload } from 'react-icons/ai';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
-import { format } from 'date-fns';
+import { format, parseISO, isValid } from 'date-fns';
 
 import api from '@/utils/api';
 
@@ -45,9 +45,7 @@ const exportToExcel = async (data) => {
         });
 
         data.forEach((item) => {
-          const formattedProductionDate = format(new Date(item.fecha_produccion), 'yyyy-MM-dd'); 
-          const formatteEntryDate = format(new Date(item.fecha_entrada), 'yyyy-MM-dd'); 
-
+ 
           worksheet.addRow({ 
             id: item.id_material, 
             num_parte: item.num_parte, 
@@ -58,8 +56,8 @@ const exportToExcel = async (data) => {
             usuario: item.user,
             ubicacion: item.ubicacion,
             tipo: item.tipo,
-            fecha_produccion: formattedProductionDate,
-            fecha_entrada: formatteEntryDate
+            fecha_produccion: item.fecha_produccion,
+            fecha_entrada: item.fecha_entrada
           });
         });
 
@@ -79,7 +77,7 @@ const exportToExcel = async (data) => {
 };
 
 // Botón para exportar los datos a Excel
-const ExportButton = ({ data, field, order }) => {
+const ExportButton = ({ data, field, order, doe }) => {
     const handleExport = () => {
       if (data.length > 0) {
         exportToExcel(data);
@@ -88,12 +86,12 @@ const ExportButton = ({ data, field, order }) => {
       }
     };
 
-const handleExportAll = () => {
+const handleExportSearch = () => {
     const getMaterials = async() => {
         try{
-            const response = await api.get(`/materials?page=${1}&limit=${'all'}&sort_field=${field}&sort_order=${order}`);
+            const response = await api.get(`/materials?obj=${doe}page=${1}&limit=${'all'}&sort_field=${field}&sort_order=${order}`);
             const materials = response.data.materials;
-            
+            console.log(materials)
             if (materials && materials.length > 0) {
                 exportToExcel(materials);
               } else {
@@ -107,9 +105,34 @@ const handleExportAll = () => {
     getMaterials();
 };
 
+const handleExportAll = () => {
+    const getMaterials = async() => {
+      try {
+        const response = await api.post('/search', {
+          obj: doe,
+          page: 1,
+          limit: 'all',
+          sort_field: field,
+          sort_order: order
+        });
+        const materials = response.data;
+        console.log(materials)
+        if (materials && materials.length > 0) {
+          exportToExcel(materials);
+          } else {
+            alert('No hay datos para exportar');
+          }
+      } catch (error) {
+        alert('Error obteniendo materiales ', error);
+        console.error(error);
+      }
+    };
+  getMaterials();
+};
+
   return (
     <>
-        <button onClick={handleExport} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
+        <button onClick={handleExportSearch} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
             <AiOutlineDownload className='mr-12' /> Exportar Vista Actual
         </button>
         <button onClick={handleExportAll} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>

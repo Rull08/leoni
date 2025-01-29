@@ -40,8 +40,12 @@ const ProductionGrid = () => {
       const getSearch = async () => {
           try {
               const response = await api.post('/search', {
-                  obj: searchText,
-              });
+                obj: searchText,
+                page: currentPage,
+                limit: limit,
+                sort_field: sortField,
+                sort_order: sortOrder
+            });
               setMaterials(response.data);
           } catch (error) {
               setError('Error obteniendo materiales');
@@ -182,12 +186,12 @@ const ProductionGrid = () => {
                                     
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
-                                                  {format(new Date(material.fecha_produccion), 'dd/MM/yyyy')}
+                                                {material.fecha_produccion}
                                                 </div>
                                             </td>
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
-                                                  {format(new Date(material.fecha_entrada), 'dd/MM/yyyy')}
+                                                {material.fecha_entrada}
                                                 </div>
                                             </td>
                                         </tr>
@@ -199,7 +203,11 @@ const ProductionGrid = () => {
                 </div>
             </div>
             <div className='p-4 space-x-4'> 
-                <ExportButton data={materials} field={sortField} order={sortOrder} />   
+                <ExportButton 
+                    doe={searchText} 
+                    field={sortField} 
+                    order={sortOrder} 
+                />   
                 <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}

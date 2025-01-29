@@ -24,10 +24,28 @@ def get_all_materials(page, limit, sort_field, sort_order):
     
     return materials, total_items
 
-def search_material(doe):
-    params = (doe,)
-    query = f" SELECT * FROM {StoredProcedures.SEARCH_MATERIAL}(%s)"
-    return execute_query(query, params)
+def search_material(doe, page, limit, sort_field, sort_order):
+    if limit == 'all':
+        offset = 0  
+    else:
+        offset = (page - 1) * limit
+    
+    query = f" SELECT * FROM {StoredProcedures.SEARCH_MATERIAL}('{doe}') ORDER BY {sort_field} {sort_order} LIMIT {limit} OFFSET {offset}" 
+    return execute_query(query)
+
+def get_users(page, limit, sort_field, sort_order):
+    if limit == 'all':
+        offset = 0  
+    else:
+        offset = (page - 1) * limit
+    
+    query = f"SELECT * FROM usuarios ORDER BY {sort_field} {sort_order} LIMIT {limit} OFFSET {offset}"
+    users = execute_query(query)
+    print(users)
+    count_query = f"SELECT COUNT(*) FROM usuarios"
+    total_users = execute_query(count_query)[0][0]
+    
+    return users, total_users
 
 def set_all_ubications():
     query = "SELECT m.*, r.nombre_rack, u.nombre_ubicacion FROM materiales m INNER JOIN ubicaciones u on m.ubicacion = u.id_ubicacion INNER JOIN racks r ON u.id_rack = r.id_rack;"
@@ -44,11 +62,3 @@ def add_material(types, part_num, serial_num, weight_quantity, long_quantity, op
     result = execute_procedure(StoredProcedures.ADD_MATERIAL, params)
     print(f"Respuesta: {result}")
     return None
-
-def update_product(product_id, name, quantity, price):
-    params = (product_id, name, quantity, price)
-    return execute_procedure(StoredProcedures.UPDATE_PRODUCT, params)
-
-def delete_material(data): 
-    params = (data)
-    return execute_procedure(StoredProcedures.DELETE_PRODUCT, params)

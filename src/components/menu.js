@@ -1,94 +1,117 @@
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
-import { Bars3Icon, XMarkIcon, BellIcon } from '@heroicons/react/24/outline';
-import { useState } from 'react';
-import Image from "next/image";
-import Leoni from '@/../public/leoni-logo.png'
-import Modal_entradas from '@/components/modal_entrada';
-import Modal_salidas from '@/components/modal_salida'
+'use client';
+import Link from 'next/link';
+import Image from 'next/image';
+import { BellIcon } from '@heroicons/react/24/outline';
+import { menuConfig } from '@/components/menuConfig';
+import Leoni from '@/../public/leoni-logo.png';
 
-
-const navigation = [];
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
+import { useEffect, useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 
 const Navbar = () => {
-  const [isOpenEntradas, setIsOpenEntradas] = useState(false);
-  const [isOpenSalidas, setIsOpenSalidas] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isToken, setIsToken] = useState('');
+  const [userRole, setUserRole] = useState(null);
 
-  const handleModalOpen = (modalType) => {
-    if (modalType === 'entradas') setIsOpenEntradas(true);
-    if (modalType === 'salidas') setIsOpenSalidas(true);
-  };
-  
+  useEffect(() => {
+          const token = localStorage.getItem('token');
+          console.log(token);
+          if (!token) {
+            console.log(token)
+              localStorage.removeItem('token');
+              router.push('/login');
+          } else {
+            try {
+                const decoded = jwtDecode(token);
+                setUserRole(decoded.role);
+                console.log("----------- Rol:", decoded.role, "----------------")
+                console.log("----------- Rol:", userRole, "----------------")
+              } catch (error) {
+                console.error('Error decodificando el token:', error);
+                localStorage.removeItem('token');
+                router.push('/login');
+            }
+          }
+      }, []);
+
+      useEffect(() => {
+        if (userRole) {
+            console.log("----------- Rol actualizado:", userRole, "----------------");
+            // Aquí puedes realizar acciones basadas en el rol, como redirigir o cargar un menú
+        }
+    }, [userRole]); // Dependencia: userRole
+  // Determina el menú según la ruta actual
+  let navigation = [];
+  if ((pathname.startsWith('/pages/admin')  &&  userRole == 'admin') || (pathname.startsWith('/pages/operador')  &&  userRole == 'admin')) {
+    navigation = menuConfig.admin;
+  } else if (pathname.startsWith('/pages/Racks')) {
+    navigation = menuConfig.montacarguista;
+  } else {
+    navigation = menuConfig.general;
+  }
+
   return (
-    <>
-      <Disclosure as="nav" className="bg-gray-800">
-        <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-          <div className="relative flex h-16 items-center justify-between">
-            <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-              <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
-                <span className="sr-only">Abrir Menú</span>
-                <Bars3Icon className="block h-6 w-6 group-data-[open]:hidden" />
-                <XMarkIcon className="hidden h-6 w-6 group-data-[open]:block" />
-              </DisclosureButton>
-            </div>
-            <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-              <div className="flex flex-shrink-0 items-center">
-                <Image 
-                    src={Leoni} 
-                    alt="Your Company"
-                    width={100} 
-                    height={70} 
-                    loading="eager" 
-                  />
-              </div>
-              <div className="hidden sm:ml-6 sm:block">
-                <div className="flex space-x-4">
-                  {navigation.map((item) => (
-                    <button
-                      key={item.name}
-                      onClick={() => handleModalOpen(item.modal)}
-                      className={classNames(
-                        item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                        'rounded-md px-3 py-2 text-sm font-medium'
-                      )}
-                    >
-                      {item.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-              <button className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                <span className="sr-only">View notifications</span>
-                <BellIcon className="h-6 w-6" />
-              </button>
-            </div>
-            <Modal_entradas isOpen={isOpenEntradas} setIsOpen={setIsOpenEntradas} />
-            <Modal_salidas isOpen={isOpenSalidas} setIsOpen={setIsOpenSalidas} />
+    <nav className="bg-gray-800">
+      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+        <div className="relative flex h-16 items-center justify-between">
+          <div className="flex items-center">
+            <Image
+              src={Leoni}
+              alt="Leoni"
+              width={100}
+              height={70}
+              loading="eager"
+            />
           </div>
-        </div>
-          <DisclosurePanel className="sm:hidden">
-          <div className="space-y-1 px-2 pb-3 pt-2">
+
+          {/* Navegación */}
+          <div className="hidden sm:flex sm:space-x-4">
             {navigation.map((item) => (
-              <DisclosureButton
-                key={item.name}
-                onClick={() => handleModalOpen(item.modal)}
-                className={classNames(
-                  item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                  'block rounded-md px-3 py-2 text-base font-medium',
-                )}
-              >
-                {item.name}
-              </DisclosureButton>
+              <Link key={item.name} href={item.href}
+                
+                  className={`${
+                    pathname === item.href
+                      ? 'bg-gray-900 text-white'
+                      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                  } rounded-md px-3 py-2 text-sm font-medium`}
+                >
+                  {item.name}
+                
+              </Link>
             ))}
           </div>
-        </DisclosurePanel>
-      </Disclosure>
-    </>
+
+          {/* Icono de notificaciones */}
+          <div className="flex items-center">
+            <button className="bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 rounded-full">
+              <span className="sr-only">View notifications</span>
+              <BellIcon className="h-6 w-6" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Panel responsive */}
+      <div className="sm:hidden">
+        <div className="space-y-1 px-2 pb-3 pt-2">
+          {navigation.map((item) => (
+            <Link 
+              key={item.name} 
+              href={item.href}
+              className={`${
+              pathname === item.href
+                ? 'bg-gray-900 text-white'
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              } block rounded-md px-3 py-2 text-base font-medium`}
+            >
+                {item.name}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </nav>
   );
 };
 

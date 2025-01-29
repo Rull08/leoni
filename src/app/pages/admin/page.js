@@ -1,6 +1,6 @@
 'use client'
 import '@/app/globals.css';
-import ProductionGrid from '@/components/datagrid';
+import AdminGrid from '@/components/adminGrid';
 import { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import { jwtDecode } from 'jwt-decode';
@@ -51,7 +51,7 @@ export default function Admin(){
     return (
         <>
             {isOpenEndSession && (<Modal_endSession handleCloseModal={handleCloseModal} />)}
-            <ProductionGrid />
+            <AdminGrid />
         </>
     );
 }

@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from services.services import login_user, get_all_materials, set_all_ubications, add_material, delete_material, search_material, count_ubicactions
+from services.services import login_user, get_all_materials, set_all_ubications, add_material, search_material, count_ubicactions, get_users
 from flask_jwt_extended import create_access_token
 #from models.models import User
 
@@ -56,11 +56,47 @@ def get_materials():
         }), 200
     return jsonify({'error': 'Products not found'}), 404
 
+def set_get_users():
+    page = request.args.get('page', 1, type=int)
+    
+    limit = request.args.get('limit', 10)
+    if limit.isdigit():  
+        limit = int(limit)  
+    elif limit.lower() == 'all':
+        limit = 'all'
+    
+    sort_field = request.args.get('sort_field', 'id_usuario')
+    sort_order = request.args.get('sort_order', 'asc')
+    
+    print(f"Page: {page} limit: {limit} Campo: {sort_field} Order: {sort_order}")
+    users, total_users = get_users(page, limit, sort_field, sort_order)
+    
+    if limit == 'all':
+        limit = 1   
+    
+    if users:
+        return jsonify({
+            "users": [{
+            "usuario": row[0],
+            "contrasena": row[1],
+            "id": row[2],
+            "rol" :row[3],
+        } for row in users],
+            "total_users": total_users,
+            "total_pages": (total_users + limit - 1) // limit,
+            "current_page": page
+        }), 200
+    return jsonify({'error': 'Users not found'}), 204
 
 def set_search_materials():
     data = request.get_json()
+    print("data", data)
     doe = data['obj']
-    material = search_material(doe)
+    page = data['page']
+    limit = data['limit']
+    sort_field = data['sort_field']
+    sort_order = data['sort_order']
+    material = search_material(doe, page, limit, sort_field, sort_order)
     if material:
         return jsonify([{
             "id_material": row[0], 

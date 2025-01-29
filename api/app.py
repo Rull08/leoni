@@ -1,10 +1,8 @@
 from flask import Flask
 from flask_cors import CORS
-from flask_socketio import SocketIO
 from flask_jwt_extended import JWTManager
 from routes.routes import routes_bp
 from datetime import timedelta 
-from routes.notification_routes import register_notification_routes
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
@@ -14,9 +12,6 @@ app.register_blueprint(routes_bp, url_prefix='/api')
 app.config['JWT_SECRET_KEY'] = 'your_secret_key'  #Cambiar la clave y ponerla de forma segura
 
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=50)
-
-socketio = SocketIO(app, cors_allowed_origins="*")
-register_notification_routes(socketio)
 
 jwt = JWTManager(app)
 
@@ -34,4 +29,4 @@ def favicon():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    app.run(app, debug=True)

@@ -1,11 +1,11 @@
 'use client'
-import ProductionGrid from "@/components/datagrid";
+
 import { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 
 import { jwtDecode } from 'jwt-decode';
 
-import Board from '@/components/kanban'
+const rack_name = 'Scrap'
   
 const isTokenExpired = (token) => {
   try {
@@ -17,8 +17,6 @@ const isTokenExpired = (token) => {
     return true; 
   }
 };
-
-
 
 export default function Production () {
 
@@ -53,7 +51,7 @@ export default function Production () {
     return (
         <>
             {isOpenEndSession && (<Modal_endSession handleCloseModal={handleCloseModal} />)}
-            <Board />   
+            <Board rack_name={rack_name}/>   
         </>
     );
 };
