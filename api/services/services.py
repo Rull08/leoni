@@ -47,8 +47,8 @@ def get_users(page, limit, sort_field, sort_order):
     
     return users, total_users
 
-def set_all_ubications():
-    query = "SELECT m.*, r.nombre_rack, u.nombre_ubicacion FROM materiales m INNER JOIN ubicaciones u on m.ubicacion = u.id_ubicacion INNER JOIN racks r ON u.id_rack = r.id_rack;"
+def set_all_ubications(rack_name):
+    query = f"SELECT m.*, r.nombre_rack, u.nombre_ubicacion FROM materiales m INNER JOIN ubicaciones u on m.ubicacion = u.id_ubicacion INNER JOIN racks r ON u.id_rack = r.id_rack WHERE r.nombre_rack = '{rack_name}';"
     return execute_query(query)
 
 def count_ubicactions(rack_name):

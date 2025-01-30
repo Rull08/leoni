@@ -5,7 +5,8 @@ from routes.routes import routes_bp
 from datetime import timedelta 
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://localhost:5000"]}}, supports_credentials=True)
+
 app.register_blueprint(routes_bp, url_prefix='/api')
 
 

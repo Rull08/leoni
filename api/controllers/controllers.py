@@ -114,9 +114,9 @@ def set_search_materials():
     return jsonify({'error': 'Products not found'}), 204
 
 def set_ubications():
-    data = request.get_json()
-    ubication = set_all_ubications()
-    count  = count_ubicactions(data['rack_name'])
+    rack_name = request.args.get('rack_name')
+    ubication = set_all_ubications(rack_name)
+    count  = count_ubicactions(rack_name)
     print(f"total: {count}")
     print(ubication)
     if ubication:
