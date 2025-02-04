@@ -12,7 +12,7 @@ import Pagination from '@/components/pagination'
 const AdminGrid = () => {
     const [users, setUsers] = useState([]);
     const [searchText, setSearchText] = useState('');
-    const [sortOrder, setSortOrder] = useState('asc');
+    const [sortOrder, setSortOrder] = useState('ASC');
     const [sortField, setSortField] = useState('id');
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(10);
@@ -22,9 +22,18 @@ const AdminGrid = () => {
 
     useEffect(() => {
         const getUsers = async() => {
+            console.log(`Solicitando materiales con sortField: ${sortField} y sortOrder: ${sortOrder}`);
             try{
-                const response = await api.get(`/users?page=${currentPage}&limit=${limit}&sort_field=${sortField}&sort_order=${sortOrder}`);
+                const token = localStorage.getItem('token'); 
+                const response = await api.get(`/users?page=${currentPage}&limit=${limit}&sort_field=${sortField}&sort_order=${sortOrder}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
                 setUsers(response.data.users);
+                console.log(users)
                 setTotalPages(response.data.total_pages);
             } catch (error){
                 setError('Error obteniendo usuarios');

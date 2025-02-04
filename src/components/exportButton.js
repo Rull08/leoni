@@ -78,18 +78,18 @@ const exportToExcel = async (data) => {
 
 // Botón para exportar los datos a Excel
 const ExportButton = ({ data, field, order, doe }) => {
-    const handleExport = () => {
-      if (data.length > 0) {
-        exportToExcel(data);
-      } else {
-        alert('No hay datos para exportar');
-      }
-    };
 
 const handleExportSearch = () => {
     const getMaterials = async() => {
         try{
-            const response = await api.get(`/materials?obj=${doe}page=${1}&limit=${'all'}&sort_field=${field}&sort_order=${order}`);
+            const token = localStorage.getItem('token'); 
+            const response = await api.get(`/materials?obj=${doe}page=${1}&limit=${'ALL'}&sort_field=${field}&sort_order=${order}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
             const materials = response.data.materials;
             console.log(materials)
             if (materials && materials.length > 0) {
@@ -108,12 +108,17 @@ const handleExportSearch = () => {
 const handleExportAll = () => {
     const getMaterials = async() => {
       try {
-        const response = await api.post('/search', {
+        const token = localStorage.getItem('token');
+        const response = await api.post('/search_materials', {
           obj: doe,
           page: 1,
-          limit: 'all',
+          limit: 'ALL',
           sort_field: field,
           sort_order: order
+        }, {
+          headers: {
+              Authorization: `Bearer ${token}`,  // Agregar el token en los encabezados
+          },
         });
         const materials = response.data;
         console.log(materials)

@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { BellIcon } from '@heroicons/react/24/outline';
-import { menuConfig } from '@/components/menuConfig';
+import { menuConfig } from '@/utils/menuConfig';
 import Leoni from '@/../public/leoni-logo.png';
 
 import { useEffect, useState } from 'react';
@@ -26,8 +26,6 @@ const Navbar = () => {
             try {
                 const decoded = jwtDecode(token);
                 setUserRole(decoded.role);
-                console.log("----------- Rol:", decoded.role, "----------------")
-                console.log("----------- Rol:", userRole, "----------------")
               } catch (error) {
                 console.error('Error decodificando el token:', error);
                 localStorage.removeItem('token');
@@ -35,13 +33,7 @@ const Navbar = () => {
             }
           }
       }, []);
-
-      useEffect(() => {
-        if (userRole) {
-            console.log("----------- Rol actualizado:", userRole, "----------------");
-            // Aquí puedes realizar acciones basadas en el rol, como redirigir o cargar un menú
-        }
-    }, [userRole]); // Dependencia: userRole
+      
   // Determina el menú según la ruta actual
   let navigation = [];
   if ((pathname.startsWith('/pages/admin')  &&  userRole == 'admin') || (pathname.startsWith('/pages/operador')  &&  userRole == 'admin')) {

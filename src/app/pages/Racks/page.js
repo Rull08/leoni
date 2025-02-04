@@ -5,24 +5,15 @@ import { useRouter } from "next/navigation";
 
 import { jwtDecode } from 'jwt-decode';
 
-const rack_name = 'Scrap'
-  
-const isTokenExpired = (token) => {
-  try {
-    const decoded = jwtDecode(token);
-    const currentTime = Date.now() / 1000; 
-    return decoded.exp < currentTime; 
-  } catch (error) {
-    console.error('Error decodificando el token:', error);
-    return true; 
-  }
-};
 
 export default function Production () {
 
     const router = useRouter();
 
     const [isOpenEndSession, setIsOpenEndSession] = useState(false);
+    const [operador, setOperator] = useState('Guest');
+    
+    const rack_name = 'Scrap'
 
 
     useEffect(() => {
@@ -31,15 +22,26 @@ export default function Production () {
             localStorage.removeItem('token');
             router.push('/login');
         }
+          
+        const isTokenExpired = (token) => {
+            try {
+              const decoded = jwtDecode(token);
+              const currentTime = Date.now() / 1000; 
+              return decoded.exp < currentTime; 
+            } catch (error) {
+              console.error('Error decodificando el token:', error);
+              return true; 
+            }
+        };
 
         const interval = setInterval(() => {
             const token = localStorage.getItem('token');
             if (isTokenExpired(token)) {
-                setIsOpenEndSession(true);  
                 localStorage.removeItem('token');
             }
         }, 10000);
         return() => clearInterval(interval);
+    
 
     }, [router]);
 
@@ -51,7 +53,7 @@ export default function Production () {
     return (
         <>
             {isOpenEndSession && (<Modal_endSession handleCloseModal={handleCloseModal} />)}
-            <Board rack_name={rack_name}/>   
+            <Board rack_name={rack_name} />   
         </>
     );
 };

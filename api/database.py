@@ -1,59 +1,57 @@
-import pg8000
 from config import DB_CONFIG
+from sqlalchemy import text
 
-def get_connection():
-    try:
-        return pg8000.connect(
-            host=DB_CONFIG["host"],
-            port=DB_CONFIG["port"],
-            database=DB_CONFIG["database"],
-            user=DB_CONFIG["user"],
-            password=DB_CONFIG["password"]
-        )
-    except Exception as e:
-        print(f"Error al conectar a la base de datos: {e}")
-        raise
+
+import logging
+from db_pool import get_connection
 
 def execute_procedure(procedure_name, params=None):
-    conn = None
+    conn = get_connection()
     try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        
-        if params:
-            cursor.execute(f"CALL {procedure_name}({', '.join(['%s'] * len(params))})", params)
-            print(f"CALL {procedure_name}({', '.join(['%s'] * len(params))})", params)
-            result = cursor.fetchall() if cursor.description else None
-        else:
-            cursor.execute(f"CALL {procedure_name}()") #Pendiente el funcionamiento completo de procedimientos sin parametros 
-            result = cursor.fetchall()
-            if cursor.description:
-                for row in cursor:
-                    print(row)
-            else: None
-    
-        print(result)
-        conn.commit()
-        return result
+        with conn.begin():
+            if params:
+                # Si params es una lista, conviértela a tupla.
+                if isinstance(params, list):
+                    params = tuple(params)
+                # Crear un diccionario con claves p1, p2, ... para cada parámetro.
+                params_dict = {f"p{i+1}": param for i, param in enumerate(params)}
+                # Crear los placeholders nombrados, por ejemplo: ":p1, :p2, :p3, :p4"
+                placeholders = ",".join([f":p{i+1}" for i in range(len(params))])
+                query_str = f"CALL {procedure_name}({placeholders})"
+                logging.info("Parámetros: %s", params_dict)
+                logging.info("Query construida: %s", query_str)
+            else:
+                query_str = f"CALL {procedure_name}()"
+                params_dict = {}
+            
+            logging.info("Ejecutando procedimiento: %s", query_str)
+            
+            # Convertir la cadena en un objeto ejecutable text.
+            stmt = text(query_str)
+            # Ejecutar la consulta pasando el diccionario de parámetros.
+            result = conn.execute(stmt, params_dict)
+            logging.info("Resultado: %s", result)
+            
+            # Obtener los datos si la consulta retorna filas.
+            data = result.fetchall() if result.returns_rows else None
+            return data
     except Exception as e:
-        print(f"Error executing query: {e}")
+        logging.error("Error executing procedure %s: %s", procedure_name, e, exc_info=True)
         raise
     finally:
-        cursor.close()
         conn.close()
         
 def execute_query(query, params=None):
-    conn = None
+    conn = get_connection()
     try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute(query, params or ())
-        result = cursor.fetchall() if cursor.description else None
-        conn.commit()
-        return result
+        with conn.begin():
+            result = conn.execute(query, params or ())
+            
+            logging.info("Ejecutando query: %s - Params %s", query, params)
+            data = result.fetchall() if result.returns_rows else None
+            return data
     except Exception as e:
-        print(f"Error executing query: {e}")
+        logging.error("Error executing query: %s", e, exc_info=True)
         raise
     finally:
-        cursor.close()
         conn.close()

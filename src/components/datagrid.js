@@ -13,7 +13,7 @@ import Pagination from '@/components/pagination'
 const ProductionGrid = () => {
     const [materials, setMaterials] = useState([]);
     const [searchText, setSearchText] = useState('');
-    const [sortOrder, setSortOrder] = useState('asc');
+    const [sortOrder, setSortOrder] = useState('ASC');
     const [sortField, setSortField] = useState('id_material');
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(10);
@@ -25,7 +25,14 @@ const ProductionGrid = () => {
       console.log(`Solicitando materiales con sortField: ${sortField} y sortOrder: ${sortOrder}`);
         const getMaterials = async() => {
             try{
-                const response = await api.get(`/materials?page=${currentPage}&limit=${limit}&sort_field=${sortField}&sort_order=${sortOrder}`);
+                const token = localStorage.getItem('token'); 
+                const response = await api.get(`/materials?page=${currentPage}&limit=${limit}&sort_field=${sortField}&sort_order=${sortOrder}`,
+                    {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
                 setMaterials(response.data.materials);
                 setTotalPages(response.data.total_pages);
             } catch (error) {
@@ -39,16 +46,21 @@ const ProductionGrid = () => {
     const handleSortBySearch = () =>  {
       const getSearch = async () => {
           try {
-              const response = await api.post('/search', {
+                const token = localStorage.getItem('token'); // Obtener el token
+              const response = await api.post('/search_materials', {
                 obj: searchText,
                 page: currentPage,
                 limit: limit,
                 sort_field: sortField,
                 sort_order: sortOrder
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,  // Agregar el token en los encabezados
+                },
             });
               setMaterials(response.data);
           } catch (error) {
-              setError('Error obteniendo materiales');
+              setError('Error en la busqueda');
               console.error(error);
           }
       };
@@ -125,11 +137,8 @@ const ProductionGrid = () => {
                                         <th className='px-4 py-2'>id</th>
                                         <th className='px-4 py-2'>Numero de parte</th>
                                         <th className='px-4 py-2'>Numero de serie</th>
-                                        <th className='px-4 py-2'>Cantidad en kilos</th>
                                         <th className='px-4 py-2'>Cantidad en metros</th>
                                         <th className='px-4 py-2'>Operador</th>
-                                        <th className='px-4 py-2'>Clasificacion</th>
-                                        <th className='px-4 py-2'>Tipo</th>
                                         <th className='px-4 py-2'>Ubicación</th>
                                         <th className='px-4 py-2'>Fecha de Produccion</th>
                                         <th className='px-4 py-2'>Fecha de Entrada</th>
@@ -153,11 +162,13 @@ const ProductionGrid = () => {
                                                     {material.num_serie}
                                                 </div>
                                             </td>
+                                            {/*
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
                                                     {material.cant_kilos}
                                                 </div>
                                             </td>
+                                            */}
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
                                                     {material.cant_metros}
@@ -168,6 +179,7 @@ const ProductionGrid = () => {
                                                     {material.user}
                                                 </div>
                                             </td>
+                                            {/*
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
                                                     {material.nombre_clasificacion}
@@ -178,6 +190,7 @@ const ProductionGrid = () => {
                                                     {material.tipo}
                                                 </div>
                                             </td>
+                                            */}
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
                                                     {material.ubicacion}

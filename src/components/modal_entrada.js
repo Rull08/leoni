@@ -4,36 +4,39 @@ import { useEffect, useState } from "react";
 
 import api from '@/utils/api'
 
-const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, ubication }) => {
+const Modal_entradas = ({ isOpen, setIsOpen, ubication, operator, handleUpdate  }) => {
     const [part_Num, setPartNum] = useState('');
     const [serial_Num, setSerialNum] = useState('');
-    const [weight_Quantity, setWeightQuantity] = useState('');
     const [long_Quantity, setLongQuantity] = useState('');
     const [Operator, setOperator] = useState('');
-    const [Clasification, setClasification] = useState('');
-    const [Types, setTypes] = useState('');
+    const [fechaProduccion, setFechaProduccion] = useState('');
+
     const [Ubication, setUbication] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+
+    if(!isOpen) return null;
     
     const handelEntry = async (e) => {
         e.preventDefault();
         try {
-            const response = await api.post('/entry', {
-                types: String(Types),
+            const token = localStorage.getItem('token'); 
+            const response = await api.post('/add_material', {
                 part_num: String(part_Num.toUpperCase()),
-                serial_num: String(serial_Num),
-                weight_quantity: String(weight_Quantity),
-                long_quantity: String(long_Quantity),
+                serial_num: serial_Num,
+                long_quantity: long_Quantity,
                 operator: String(Operator),
                 ubication: String(Ubication),
-                clasification: String(Clasification),
-                respuesta: String("Geimy")
-            },
+                production_date: fechaProduccion,
+                respuesta: String("N/A")
+            }, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
         );
-        if (response.status === 200)
-        {
-            if (onClose) await onClose();
-            closeModal = setIsOpen(false);
+        if (response.status === 200) {
+            setIsOpen(false);
+            handleUpdate();
         }
         } catch (error) {
             console.error('Error al enviar el formulario:', error);
@@ -42,10 +45,9 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, ubication }) =
     };
 
     useEffect(() => {
-        setUbication(ubication)
+        setUbication(ubication);
+        setOperator(operator);
     }, []);
-
-    if(!isOpen) return null;
 
     return (
         <AnimatePresence>
@@ -104,22 +106,6 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, ubication }) =
                                 <div className="flex flex-col gap-1 p-2">
                                     <div className="w-full max-w-sm min-w-[200px]">
                                         <label className="block mb-2 text-sm text-white">
-                                            Cantidad en Kilos
-                                        </label>
-                                      <input
-                                        id="kilos"
-                                        name="cantidad_kilos"
-                                        type="text"
-                                        value={weight_Quantity}
-                                        onChange={(e) => setWeightQuantity(e.target.value)}
-                                        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
-                                        placeholder="Cantidad en Kilos"
-                                        />
-                                    </div> 
-                                </div>
-                                <div className="flex flex-col gap-1 p-2">
-                                    <div className="w-full max-w-sm min-w-[200px]">
-                                        <label className="block mb-2 text-sm text-white">
                                             Cantidad en Metros
                                         </label>
                                         <input
@@ -137,22 +123,6 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, ubication }) =
                                     <div className="flex flex-col gap-1 p-2">
                                         <div className="w-full max-w-sm min-w-[200px]">
                                             <label className="block mb-2 text-sm text-white">
-                                                Operador
-                                            </label>
-                                            <input
-                                              id="operador"
-                                              name="operador"
-                                              type="text"
-                                              value={Operator}
-                                              onChange={(e) => setOperator(e.target.value)}
-                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
-                                              placeholder="Operador"
-                                            />
-                                        </div> 
-                                    </div>
-                                    <div className="flex flex-col gap-1 p-2">
-                                        <div className="w-full max-w-sm min-w-[200px]">
-                                            <label className="block mb-2 text-sm text-white">
                                                 Ubicación
                                             </label>
                                           <input
@@ -166,37 +136,19 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, ubication }) =
                                             />
                                         </div> 
                                     </div>
-                                </div>
-                                <div className="grid grid-cols-2">
                                     <div className="flex flex-col gap-1 p-2">
                                         <div className="w-full max-w-sm min-w-[200px]">
                                             <label className="block mb-2 text-sm text-white">
-                                                Clasificación
+                                                Ubicación
                                             </label>
-                                        <input
-                                              id="clasificacion"
-                                              name="clasificacion"
-                                              type="text"
-                                              value={Clasification}
-                                              onChange={(e) => setClasification(e.target.value)}
-                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
-                                              placeholder="Clasificacion"
-                                            />
-                                        </div> 
-                                    </div>
-                                    <div className="flex flex-col gap-1 p-2">
-                                        <div className="w-full max-w-sm min-w-[200px]">
-                                            <label className="block mb-2 text-sm text-white">
-                                                Tipo
-                                            </label>
-                                            <input
-                                              id="tipo"
-                                              name="tipo"
-                                              type="text"
-                                              value={Types}
-                                              onChange={(e) => setTypes(e.target.value)}
-                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
-                                              placeholder="Tipo"
+                                          <input
+                                            id="fecha_produccion"
+                                            name="fecha_produccion"
+                                            type="date"
+                                            value={fechaProduccion}
+                                            onChange={(e) => setFechaProduccion(e.target.value)}
+                                            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
+                                            placeholder="Fecha Produccion"
                                             />
                                         </div> 
                                     </div>
@@ -214,7 +166,6 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, ubication }) =
                                     <div>
                                         <button
                                             type="submit"
-                                            onClick={closeModal}
                                             className="bg-black hover:bg-black/60 transition-opacity text-white font-semibold w-full rounded"
                                         >
                                             Aceptar
