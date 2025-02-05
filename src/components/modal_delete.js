@@ -1,16 +1,39 @@
 'use client'
 
 import { useState } from 'react'
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
+import { DataInteractive, Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
 import { InformationCircleIcon } from '@heroicons/react/24/outline'
 
-export default function Modal_delete({ handleCloseModal, handleDeleteMaterial, deleteSelection }) {
+import api from '@/utils/api';
+
+export default function Modal_delete({ handleCloseModal, deleteSelection }) {
   const [isOpen, setIsOpen] = useState(true)       
 
   const [confirmSerial, setConfirmSerial] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   console.log(deleteSelection)
+  
+  const handleDeleteMaterial = async (material) => {
+    console.log(material, '---------')
+    try {
+      const token = localStorage.getItem('token');
+      const response = await api.delete('/delete_material', {
+        params: { serial_num: Number(material) }, // Los parámetros de la query
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      console.log('Datos a enviar:', { serial_num: material });
+
+      if (response.status === 200) {
+        alert('Material eliminado correctamente');
+        setIsOpen(false);
+        handleUpdate();
+      }
+    } catch (error) {
+      alert('Error eliminando el material, verifique la fecha del material');
+    }
+  };
 
   const handleDelete = () => {
     

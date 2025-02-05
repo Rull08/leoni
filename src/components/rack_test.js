@@ -9,6 +9,7 @@ import Modal_entradas from '@/components/modal_entrada';
 import Modal_salidas from '@/components/modal_salida';
 import Modal_search from '@/components/modal_search';
 import Modal_delete from '@/components/modal_delete';
+import Modal_older from '@/components/modal_older';
 import api from '@/utils/api';
 import { jwtDecode } from 'jwt-decode';
 
@@ -19,6 +20,7 @@ const Board = ({ rack_name }) => {
   const [isOpenSalidas, setIsOpenSalidas] = useState(false);
   const [isOpenSearch, setIsOpenSearch] = useState(false);
   const [isOpenDelete, setIsOpenDelete] = useState(false);
+  const [isOpenAntiguo, setIsOpenAntiguo] = useState(false);
 
   const [ubicacion, setUbicacion] = useState('');
   const [operator, setOperator] = useState('');
@@ -44,7 +46,7 @@ const Board = ({ rack_name }) => {
 
         let formattedLists = formatData(data);
 
-        if (rack_name === "Cables Especiales") {
+        if (rack_name === "Cables_Especiales") {
           formattedLists.reverse(); 
         }
 
@@ -71,30 +73,13 @@ const Board = ({ rack_name }) => {
       const data = response.data;
       let formattedLists = formatData(data);
 
-      if (rack_name === "Cables Especiales") {
-        formattedLists.reverse(); 
+      if (rack_name === "Cables_Especiales") {
+        formattedLists.reverse();  
       }
 
       setLists(formattedLists);
     } catch (error) {
       console.error('Error fetching data:', error);
-    }
-  };
-
-  const handleDeleteMaterial = async (material) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await api.delete('/delete_material', {
-        serial_num: material.num_serie
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (response.status === 200) {
-        console.log('Material eliminado correctamente');
-        await updateData(); // Actualiza la vista
-      }
-    } catch (error) {
-      console.error('Error eliminando el material', error);
     }
   };
 
@@ -123,6 +108,50 @@ const Board = ({ rack_name }) => {
     }
     };
     getSearch();
+  }; 
+
+  const handleSearchOlder = ( rack ) => {
+    const getSearch = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await api.post('/search_older', {
+          search: String(rack)
+        }, {
+          headers: {
+              Authorization: `Bearer ${token}`,  // Agregar el token en los encabezados
+          },
+        });
+        setSearchResult(response.data);
+
+      } catch (error) {
+        setError('Error en la busqueda');
+        console.error(error);
+    }
+    };
+    getSearch();
+  };
+
+  const handleMoveMaterial = (numSerie, nuevaUbicacion) => {
+    const moveMaterial = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await api.post('/move_material', {
+          num_serie: Number(numSerie),
+          nueva_ubicacion: String(nuevaUbicacion)
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          },
+        });
+  
+        console.log(response.data);  
+  
+      } catch (error) {
+        console.error(error);
+        setError('Error al mover material');
+      }
+    };
+    moveMaterial();
   };
 
   const formatData = (data) => {
@@ -170,6 +199,11 @@ const Board = ({ rack_name }) => {
     const movedItem = sourceList.items.splice(result.source.index, 1)[0];
     destinationList.items.splice(result.destination.index, 0, movedItem);
 
+    const movedMaterialContent  = movedItem.content;
+    const newLocation = destinationList.title;
+
+    handleMoveMaterial(movedMaterialContent, newLocation)
+
     setLists([...lists]);
   };
 
@@ -177,6 +211,11 @@ const Board = ({ rack_name }) => {
     setUbicacion(param);
     if (modalType === 'entradas') setIsOpenEntradas(true);
     if (modalType === 'salidas') setIsOpenSalidas(true);
+    if (modalType === 'antiguo') {
+      handleSearchOlder(param);
+      setIsOpenAntiguo(true);
+    }
+
     if (modalType === 'eliminar') {
       setIsOpenDelete(true) 
       setDeleteSelection(param)
@@ -193,10 +232,6 @@ const Board = ({ rack_name }) => {
 
   const handleSortBySearch = () =>{
 
-  };
-
-  const handleDelete = () => {
-    alert("Materil Borrado")
   };
 
   const gridConfigs = {
@@ -220,6 +255,12 @@ const Board = ({ rack_name }) => {
         onClick={handleSortBySearch}
         > 
             Retirar Material
+        </button>
+        <button 
+        className='bg-blue-800 hover:bg-blue-900 text-white font-bold items-center py-2 px-4 rounded inline-flex'
+        onClick={() => handleOpenModal('antiguo', [rack_name])}
+        > 
+            Consultar disponible para salida
         </button>
         <div className='flex w-1/3'>
         <input
@@ -332,9 +373,18 @@ const Board = ({ rack_name }) => {
       )}
       {isOpenDelete && (
         <Modal_delete 
+        isOpen={isOpenEntradas} 
+        setIsOpen={setIsOpenEntradas} 
         handleCloseModal={() => setIsOpenDelete(false)}
-        handleDeleteMaterial={handleDeleteMaterial}
         deleteSelection={deleteSelection}
+        handleUpdate={handleUpdate}  
+        />
+      )}
+      {isOpenAntiguo && (
+        <Modal_older 
+          isOpen={isOpenAntiguo} 
+          searchResult={searchResult} 
+          setIsOpen={setIsOpenAntiguo}
         />
       )}
     </>

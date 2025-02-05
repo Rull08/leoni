@@ -16,7 +16,7 @@ DB_CONFIG = {
 #Procedimientos almacenados
 class StoredProcedures:
     ADD_MATERIAL = os.getenv('ADD_MATERIAL')
-    UPDATE_MATERIAL = os.getenv('UPDATE_MATERIAL')
+    MOVE_MATERIAL = os.getenv('MOVE_MATERIAL')
     DELETE_MATERIAL = os.getenv('DELETE_MATERIAL')
     LOGIN_USER = os.getenv('LOGIN_USER')
     GET_MATERIAL = os.getenv('GET_MATERIAL')

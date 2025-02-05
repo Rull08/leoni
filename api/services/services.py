@@ -127,11 +127,12 @@ def exact_search_material(search):
     return execute_query(query, params)
 
 def count_ubicactions(rack_name):
-    query = text("""SELECT u.id_ubicacion, u.nombre_ubicacion, u.capacidad_maxima, u.estado, r.nombre_rack 
-    FROM ubicaciones u 
-    INNER JOIN racks r ON u.id_rack = r.id_rack  
-    WHERE r.nombre_rack = :rack_name;
-    """)
+    query = text("""
+                    SELECT u.id_ubicacion, u.nombre_ubicacion, u.capacidad_maxima, u.estado, r.nombre_rack 
+                    FROM ubicaciones u 
+                    INNER JOIN racks r ON u.id_rack = r.id_rack  
+                    WHERE r.nombre_rack = :rack_name;
+                """)
     
     return execute_query(query, {"rack_name": rack_name})
 
@@ -144,4 +145,19 @@ def add_material(part_num, serial_num, long_quantity, operator, ubication, produ
     return None
 
 def delete_material(serial_num):
-    return execute_procedure(StoredProcedures.DELETE_MATERIALm, serial_num)
+    return execute_procedure(StoredProcedures.DELETE_MATERIAL, serial_num)
+
+def search_older(search):
+    query = text("""
+                    SELECT m.*, u.nombre_ubicacion, r.nombre_rack
+                    FROM materiales m
+                    INNER JOIN ubicaciones u ON u.id_ubicacion = m.ubicacion
+                    INNER JOIN racks r ON r.id_rack = u.id_rack
+                    WHERE r.nombre_rack = :search
+                    ORDER BY fecha_produccion ASC LIMIT 1
+                 """)
+    return execute_query(query, {"search": search})
+
+def move_material(serial_num, new_ubication):
+    params = (serial_num, new_ubication)
+    return execute_procedure(StoredProcedures.MOVE_MATERIAL, params)

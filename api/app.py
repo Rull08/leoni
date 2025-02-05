@@ -5,7 +5,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 from flask_caching import Cache
-from services.services import login_user, get_all_materials, set_all_ubications, add_material, search_material, exact_search_material, count_ubicactions, get_users, delete_material
+from sqlalchemy.exc import ProgrammingError
+from services.services import login_user, get_all_materials, set_all_ubications, add_material, search_material, exact_search_material, count_ubicactions, get_users, delete_material, search_older, move_material
 from datetime import datetime
 
 from datetime import timedelta 
@@ -103,12 +104,10 @@ def search_materials():
             "id_material": row[0],
             "num_parte": row[1],
             "num_serie": row[2],
-            "nombre_clasificacion": row[3],
             "cant_kilos": row[4],
             "cant_metros": row[5],
             "user": row[6],
             "ubicacion": row[7],
-            "tipo": row[8],
             "fecha_produccion": row[9],
             "fecha_entrada": row[10]
         } for row in materials]
@@ -156,20 +155,80 @@ def exact_search():
         return jsonify(search_reault), 200
     return jsonify({'error': 'Material not found'}), 404
 
+@app.route('/api/search_older', methods=['POST'])
+@jwt_required()
+def get_search_older():
+    data = request.get_json()
+    search = data.get('search')
+    
+    try:
+        result = search_older(search)
+
+        if result:
+            search_reault = [{
+                "id_material": row[0],
+                "num_parte": row[1],
+                "num_serie": row[2],
+                "operador": row[3],
+                "ubicacion": row[4],
+                "fecha_produccion": row[5],
+                "fecha_entrada": row[6],
+                "cant_metros": row[7],
+                "nombre_ubicacion": row[8],
+                "nombre_rack": row[9],
+            } for row in result]
+        
+            return jsonify(search_reault), 200
+        else:
+            return jsonify({'error': 'Material not found'}), 404
+
+    except Exception as e:
+        return jsonify({'error': 'Error al buscar', 'detalle': e}), 500
+
+@app.route('/api/move_material', methods=['POST'])
+@jwt_required()
+def set_move_material():
+    data = request.get_json()
+    serial_num = data.get('num_serie')
+    new_ubication = data.get('nueva_ubicacion')
+    
+    if not serial_num or not new_ubication:
+        return jsonify({"error": "Faltan datos"}), 400
+    
+    try:
+        result = move_material(serial_num, new_ubication)
+        print(result)
+        if result:
+            return jsonify({'error': 'El material no se pudo mover'}), 404
+        else:
+            return jsonify({'Exito': 'Material movido correctamente'}), 200
+    
+    except Exception as e:
+        # Capturar cualquier otro error general
+        return jsonify({"error": f"Ha ocurrido un error: {str(e)}"}), 500
+
 @app.route('/api/delete_material', methods=['DELETE'])
 @jwt_required()
 def set_delete_material():
-    serial = request.args.get('serial_num')
+    serial = request.args.get('serial_num'),
+    logging.info("Datos recibidos para eliminar: %s", serial)
     if not serial:
         return jsonify({'error': 'El campo serial_num es requerido'}), 400
-    
-    result = delete_material(serial)
-    
-    if result:
-        return jsonify({'Exito': 'Material eliminiado correctamente'}), 200
-    else:
-        return jsonify({'error': 'El material no se pudo elimninar'}), 404
 
+    try:
+        result = delete_material(serial)
+
+        if result:
+            return jsonify({'error': 'El material no se pudo eliminar'}), 404
+        else:
+            return jsonify({'Exito': 'Material eliminado correctamente'}), 200
+
+    except ProgrammingError as e:
+        error_message = str(e.orig)  # Extraer el mensaje original de PostgreSQL
+        if "Solo se puede eliminar el material con la fecha más antigua" in error_message:
+            return jsonify({'error': 'Solo se puede eliminar el material con la fecha más antigua en este rack'}), 400
+        return jsonify({'error': 'Error al eliminar material', 'detalle': error_message}), 500
+    
 @app.route('/api/materials', methods=['GET'])
 @cache.cached(timeout=60, query_string=True)
 @jwt_required()
