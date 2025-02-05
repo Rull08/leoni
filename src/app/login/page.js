@@ -7,13 +7,12 @@ import { useRouter } from "next/navigation";
 import api from '@/utils/api';
 
 import { jwtDecode } from 'jwt-decode';
-//import socket  from "@/utils/socket";
 
 export default function Login() {
   const [user_Name, setUserName] = useState('');
   const [user_Password, setUserPassword] = useState('');
-  const [autenticacion, setAutenticacion] = useState('false');
   const [errorMessage, setErrorMessage] = useState('');
+  
   const router = useRouter()
 
     const handleLogin = async (e) => {
@@ -28,7 +27,7 @@ export default function Login() {
             autenticacion: false,
           }
         );
-
+        
         const { access_token } = response.data;
         localStorage.setItem('token', access_token); 
         
@@ -44,10 +43,10 @@ export default function Login() {
           router.push('/pages/admin');
           return null;
         }  else if (decodedToken.role === 'produccion') {
-          router.push('/pages/production');
+          router.push('/pages/operador');
           return null;
         } else if (decodedToken.role === 'operador'){
-          router.push('/pages/operator');
+          router.push('/pages/Racks/Cables_Especiales');
           return null;
         } else {
           console.log('Usted no tiene acceso jodase')

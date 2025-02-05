@@ -1,6 +1,6 @@
 'use client'
 import '@/app/globals.css';
-import AdminGrid from '@/components/adminGrid';
+import ProductionGrid from '@/components/datagrid';
 import { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import { jwtDecode } from 'jwt-decode';
@@ -18,7 +18,7 @@ const isTokenExpired = (token) => {
   }
 };
 
-export default function Admin(){
+export default function Operador(){
 
     const router = useRouter();
 
@@ -51,7 +51,7 @@ export default function Admin(){
     return (
         <>
             {isOpenEndSession && (<Modal_endSession handleCloseModal={handleCloseModal} />)}
-            <AdminGrid />
+            <ProductionGrid />
         </>
     );
 }

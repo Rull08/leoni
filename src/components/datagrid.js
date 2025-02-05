@@ -1,80 +1,147 @@
 'use client'
-import React from 'react'
+import React from 'react';
 import { useEffect, useState } from 'react';
-import { AiOutlineEdit, AiOutlineDelete, AiOutlineDownload, AiOutlineSortAscending, AiOutlineDown } from 'react-icons/ai';
+import { AiOutlineSortAscending, AiOutlineDown } from 'react-icons/ai';
+
+import { format } from 'date-fns';
 import api from '@/utils/api';
+
+import ExportButton from '@/components/exportButton';
+import Pagination from '@/components/pagination'
+
 
 const ProductionGrid = () => {
     const [materials, setMaterials] = useState([]);
+    const [searchText, setSearchText] = useState('');
+    const [sortOrder, setSortOrder] = useState('ASC');
+    const [sortField, setSortField] = useState('id_material');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
+
     const [error, setError] = useState(null);
 
     useEffect(() => {
+      console.log(`Solicitando materiales con sortField: ${sortField} y sortOrder: ${sortOrder}`);
         const getMaterials = async() => {
             try{
-                const response = await api.get('/materials');
-                setMaterials(response.data);
+                const token = localStorage.getItem('token'); 
+                const response = await api.get(`/materials?page=${currentPage}&limit=${limit}&sort_field=${sortField}&sort_order=${sortOrder}`,
+                    {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+                setMaterials(response.data.materials);
+                setTotalPages(response.data.total_pages);
             } catch (error) {
                 setError('Error obteniendo materiales');
                 console.error(error);
             }
         };
         getMaterials();
-    }, []);
+    }, [currentPage, limit, sortField, sortOrder]);
 
-    const downloadCSV = () => {
-        alert('Downloading CSV...');
+    const handleSortBySearch = () =>  {
+      const getSearch = async () => {
+          try {
+                const token = localStorage.getItem('token'); // Obtener el token
+              const response = await api.post('/search_materials', {
+                obj: searchText,
+                page: currentPage,
+                limit: limit,
+                sort_field: sortField,
+                sort_order: sortOrder
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,  // Agregar el token en los encabezados
+                },
+            });
+              setMaterials(response.data);
+          } catch (error) {
+              setError('Error en la busqueda');
+              console.error(error);
+          }
+      };
+          getSearch();
+    };
+   
+
+  const handleSortByField = (field) => {
+    setSortField(field);
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+  };
+
+    const handleSortByPart = () => {
+      handleSortByField('num_parte');
     };
 
-    const handleSortByName = () => {
-        console.log('Sorting by name...');
+    const handleSortByDate = () => {
+      handleSortByField('fecha_produccion');
+    };
+    
+    const handleSortByUbication = () => {
+      handleSortByField('ubicacion');
+    };
+    
+    const handleSortBySerial = () => {
+      handleSortByField('num_serie');
     };
 
     return (
         <>
         <div className='p-4'>
-            <div className='flex w-full'>
+            <div className='flex w-full space-x-4'>
                 <div className='flex w-1/3'>
                     <input
                       id="consulata"
                       name="consulta"
                       type="text"
-                      value={undefined}
-                      onChange={(e) => setPartNum(e.target.value)}
+                      value={searchText}
+                      onChange={(e) => setSearchText(e.target.value)}
                       className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Buscar"
                     />
-                    <button className='bg-blue-800 hover:bg-blue-900 text-white font-bold items-center py-2 px-4 rounded inline-flex' > 
+                    {error && <div>{error}</div>}
+                    <button 
+                    className='bg-blue-800 hover:bg-blue-900 text-white font-bold items-center py-2 px-4 rounded inline-flex'
+                    onClick={handleSortBySearch}
+                    > 
                         Buscar
                     </button>
                 </div>
                 <div className='flex w-2/3 space-x-4 place-content-end'>
-                    <button onClick={handleSortByName} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
-                        <AiOutlineSortAscending className='mr-2' /> Ordenar por Nombre
+                    <button onClick={handleSortByPart} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
+                        <AiOutlineSortAscending className='mr-2' /> Ordenar por Numero de parte
                     </button>
-                    <button onClick={handleSortByName} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
-                        <AiOutlineDown className='mr-2' /> Ordenar por Ubicación
+                    <button onClick={handleSortByDate} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
+                        <AiOutlineDown className='mr-2' /> Ordenar por Fecha
+                    </button>
+                    <button onClick={handleSortByUbication} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
+                        <AiOutlineDown className='mr-2' /> Ordenar por Ubicacion
+                    </button>
+                    <button onClick={handleSortBySerial} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
+                        <AiOutlineDown className='mr-2' /> Ordenar por Numero de Serie
                     </button>
                     </div>
                 </div>
             </div>
-            <div className=''>
-                <div className='p-2'>
+            <div className='w-full'>
+                <div className='p-2 '>
                     <div className='overflow-x-auto'>
                         {error && <p>{error}</p>}
                         {!error && materials.length > 0 && (
-                            <table className='max-w-full table-auto'>
+                            <table className='min-w-full table-auto'>
                                 <thead className='bg-blue-800'>
                                     <tr className='text-white'>
                                         <th className='px-4 py-2'>id</th>
                                         <th className='px-4 py-2'>Numero de parte</th>
                                         <th className='px-4 py-2'>Numero de serie</th>
-                                        <th className='px-4 py-2'>Cantidad en kilos</th>
                                         <th className='px-4 py-2'>Cantidad en metros</th>
                                         <th className='px-4 py-2'>Operador</th>
-                                        <th className='px-4 py-2'>Clasificacion</th>
-                                        <th className='px-4 py-2'>Tipo</th>
                                         <th className='px-4 py-2'>Ubicación</th>
-                                        <th className='px-4 py-2'>Fecha de produccion</th>
-                                        <th className='px-4 py-2'></th>
+                                        <th className='px-4 py-2'>Fecha de Produccion</th>
+                                        <th className='px-4 py-2'>Fecha de Entrada</th>
                                     </tr>
                                 </thead>
                                 <tbody className='divide-y divide-gray-200'>
@@ -92,14 +159,16 @@ const ProductionGrid = () => {
                                             </td>
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
-                                                    {material.numero_serie}
+                                                    {material.num_serie}
                                                 </div>
                                             </td>
+                                            {/*
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
                                                     {material.cant_kilos}
                                                 </div>
                                             </td>
+                                            */}
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
                                                     {material.cant_metros}
@@ -110,6 +179,7 @@ const ProductionGrid = () => {
                                                     {material.user}
                                                 </div>
                                             </td>
+                                            {/*
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
                                                     {material.nombre_clasificacion}
@@ -120,6 +190,7 @@ const ProductionGrid = () => {
                                                     {material.tipo}
                                                 </div>
                                             </td>
+                                            */}
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
                                                     {material.ubicacion}
@@ -128,13 +199,12 @@ const ProductionGrid = () => {
                                     
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
-                                                    {material.fecha_produccion}
+                                                {material.fecha_produccion}
                                                 </div>
                                             </td>
-                                            <td className='px-4 py-2 flex justify-start items-center space-x-2'>
-                                                <div className='flex items-center gap-4 h-full'>
-                                                    <button className='text-blue-500 hover:text-blue-700'><AiOutlineEdit /></button>
-                                                    <button className='text-red-500 hover:text-red-700'><AiOutlineDelete /></button>
+                                            <td className='px-4 py-2'>
+                                                <div className='flex items-center justify-center h-full'>
+                                                {material.fecha_entrada}
                                                 </div>
                                             </td>
                                         </tr>
@@ -143,15 +213,22 @@ const ProductionGrid = () => {
                             </table>
                         )}
                     </div>
-                    <div className='p-4'>        
-                        <button onClick={downloadCSV} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
-                            <AiOutlineDownload className='mr-12' /> Export to CSV
-                        </button>
-                    </div>
                 </div>
+            </div>
+            <div className='p-4 space-x-4'> 
+                <ExportButton 
+                    doe={searchText} 
+                    field={sortField} 
+                    order={sortOrder} 
+                />   
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={(page) => setCurrentPage(page)}
+                />
             </div>
         </>
     );
-}
+};
 
 export default ProductionGrid;

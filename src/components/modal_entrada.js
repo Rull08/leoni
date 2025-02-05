@@ -4,38 +4,39 @@ import { useEffect, useState } from "react";
 
 import api from '@/utils/api'
 
-const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) => {
+const Modal_entradas = ({ isOpen, setIsOpen, ubication, operator, handleUpdate  }) => {
     const [part_Num, setPartNum] = useState('');
     const [serial_Num, setSerialNum] = useState('');
-    const [weight_Quantity, setWeightQuantity] = useState('');
     const [long_Quantity, setLongQuantity] = useState('');
     const [Operator, setOperator] = useState('');
-    const [Clasification, setClasification] = useState('');
-    const [Types, setTypes] = useState('');
+    const [fechaProduccion, setFechaProduccion] = useState('');
+
     const [Ubication, setUbication] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    
-    const columnMap = { 0: "A", 1: "B", 2: "C", 3: "D" };
+
+    if(!isOpen) return null;
     
     const handelEntry = async (e) => {
         e.preventDefault();
         try {
-            const response = await api.post('/entry', {
-                types: String(Types),
+            const token = localStorage.getItem('token'); 
+            const response = await api.post('/add_material', {
                 part_num: String(part_Num.toUpperCase()),
-                serial_num: String(serial_Num),
-                weight_quantity: String(weight_Quantity),
-                long_quantity: String(long_Quantity),
+                serial_num: serial_Num,
+                long_quantity: long_Quantity,
                 operator: String(Operator),
                 ubication: String(Ubication),
-                clasification: String(Clasification),
-                respuesta: String("Geimy")
-            },
+                production_date: fechaProduccion,
+                respuesta: String("N/A")
+            }, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
         );
-        if (response.status === 200)
-        {
-            if (onClose) await onClose();
-            closeModal = setIsOpen(false);
+        if (response.status === 200) {
+            setIsOpen(false);
+            handleUpdate();
         }
         } catch (error) {
             console.error('Error al enviar el formulario:', error);
@@ -43,21 +44,10 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
         }
     };
 
-    const getUbicationName = (row, col) => {
-        if (typeof row === "number" || typeof col === "number") {
-            const columnName = columnMap[col]; 
-            if (!columnName) return "Ubicación inválida"; 
-            return `${columnName}${row + 1}`; 
-        } else
-            return "Ubicación";
-    };
-    
     useEffect(() => {
-        const value = getUbicationName(row, col);
-        setUbication(value)
-    }, [row, col]);
-
-    if(!isOpen) return null;
+        setUbication(ubication);
+        setOperator(operator);
+    }, []);
 
     return (
         <AnimatePresence>
@@ -76,7 +66,7 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
                         onClick={(e) => e.stopPropagation()}
                         className="bg-gray-800 text-white font-medium px-4 py-2 rounded hover: opacity-90 transition-opacity"
                     >
-                        <div className="relative flex flex-col bg-blue-700">
+                        <div className="relative flex flex-col bg-white">
                             <form onSubmit={handelEntry} action= "#" method="POST" className="sp">
                                 <div className="realtive m-2.5 items-center flex justify-center text-white h-12 rounded-md bg-slate-800">
                                     <h3 className="text-lg" > Entrada </h3>
@@ -92,7 +82,8 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
                                           type="text"
                                           value={part_Num}
                                           onChange={(e) => setPartNum(e.target.value)}
-                                          className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Número de Parte"
+                                          className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
+                                          placeholder="Número de Parte"
                                         />
                                     </div>
                                 </div>
@@ -107,22 +98,8 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
                                         type="text"
                                         value={serial_Num}
                                         onChange={(e) => setSerialNum(e.target.value)}
-                                        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Número de Serie"
-                                        />
-                                    </div> 
-                                </div>
-                                <div className="flex flex-col gap-1 p-2">
-                                    <div className="w-full max-w-sm min-w-[200px]">
-                                        <label className="block mb-2 text-sm text-white">
-                                            Cantidad en Kilos
-                                        </label>
-                                      <input
-                                        id="kilos"
-                                        name="cantidad_kilos"
-                                        type="text"
-                                        value={weight_Quantity}
-                                        onChange={(e) => setWeightQuantity(e.target.value)}
-                                        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Cantidad en Kilos"
+                                        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
+                                        placeholder="Número de Serie"
                                         />
                                     </div> 
                                 </div>
@@ -137,26 +114,12 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
                                           type="text"
                                           value={long_Quantity}
                                           onChange={(e) => setLongQuantity(e.target.value)}
-                                          className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Cantidad en Metros"
+                                          className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
+                                          placeholder="Cantidad en Metros"
                                         />
                                     </div> 
                                 </div>
                                 <div className="grid grid-cols-2">
-                                    <div className="flex flex-col gap-1 p-2">
-                                        <div className="w-full max-w-sm min-w-[200px]">
-                                            <label className="block mb-2 text-sm text-white">
-                                                Operador
-                                            </label>
-                                            <input
-                                              id="operador"
-                                              name="operador"
-                                              type="text"
-                                              value={Operator}
-                                              onChange={(e) => setOperator(e.target.value)}
-                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Operador"
-                                            />
-                                        </div> 
-                                    </div>
                                     <div className="flex flex-col gap-1 p-2">
                                         <div className="w-full max-w-sm min-w-[200px]">
                                             <label className="block mb-2 text-sm text-white">
@@ -168,39 +131,24 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
                                             type="text"
                                             value={Ubication}
                                             onChange={(e) => setUbication(e.target.value)}
-                                            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder={getUbicationName(row, col)}
-                                            />
-                                        </div> 
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2">
-                                    <div className="flex flex-col gap-1 p-2">
-                                        <div className="w-full max-w-sm min-w-[200px]">
-                                            <label className="block mb-2 text-sm text-white">
-                                                Clasificación
-                                            </label>
-                                        <input
-                                              id="clasificacion"
-                                              name="clasificacion"
-                                              type="text"
-                                              value={Clasification}
-                                              onChange={(e) => setClasification(e.target.value)}
-                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Clasificacion"
+                                            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
+                                            placeholder={Ubication}
                                             />
                                         </div> 
                                     </div>
                                     <div className="flex flex-col gap-1 p-2">
                                         <div className="w-full max-w-sm min-w-[200px]">
                                             <label className="block mb-2 text-sm text-white">
-                                                Tipo
+                                                Ubicación
                                             </label>
-                                            <input
-                                              id="tipo"
-                                              name="tipo"
-                                              type="text"
-                                              value={Types}
-                                              onChange={(e) => setTypes(e.target.value)}
-                                              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Tipo"
+                                          <input
+                                            id="fecha_produccion"
+                                            name="fecha_produccion"
+                                            type="date"
+                                            value={fechaProduccion}
+                                            onChange={(e) => setFechaProduccion(e.target.value)}
+                                            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
+                                            placeholder="Fecha Produccion"
                                             />
                                         </div> 
                                     </div>
@@ -218,7 +166,6 @@ const Modal_entradas = ({ isOpen, setIsOpen, closeModal, onClose, row, col }) =>
                                     <div>
                                         <button
                                             type="submit"
-                                            onClick={closeModal}
                                             className="bg-black hover:bg-black/60 transition-opacity text-white font-semibold w-full rounded"
                                         >
                                             Aceptar
