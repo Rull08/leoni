@@ -6,8 +6,9 @@ import { InformationCircleIcon } from '@heroicons/react/24/outline'
 
 import api from '@/utils/api';
 
-export default function Modal_delete({ handleCloseModal, deleteSelection }) {
-  const [isOpen, setIsOpen] = useState(true)       
+export default function Modal_delete({ isOpen, setIsOpen, deleteSelection, handleUpdate }) {
+  
+  if(!isOpen) return null;   
 
   const [confirmSerial, setConfirmSerial] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -31,11 +32,10 @@ export default function Modal_delete({ handleCloseModal, deleteSelection }) {
         handleUpdate();
       }
     } catch (error) {
-      alert('Error eliminando el material, verifique la fecha del material');
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async ()  => {
     
     if (!confirmSerial.trim()) {
       setErrorMessage('Por favor, ingrese el número de serie para confirmar la eliminación.');
@@ -50,12 +50,12 @@ export default function Modal_delete({ handleCloseModal, deleteSelection }) {
       return;
     }
     
-    handleDeleteMaterial(deleteSelection);
-    handleCloseModal();
+    await handleDeleteMaterial(deleteSelection);
+    setIsOpen(false);
   };
 
   return (
-    <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-10">
+    <Dialog open={isOpen} onClose={setIsOpen} className="relative z-10">
       <DialogBackdrop
         transition
         className="fixed inset-0 bg-gray-500/75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
@@ -101,7 +101,7 @@ export default function Modal_delete({ handleCloseModal, deleteSelection }) {
             <div className="bg-gray-50 px-4 py-3 sm:flex justify-end sm:px-6">
               <button
                 type="button"
-                onClick={handleCloseModal}
+                onClick={setIsOpen}
                 className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
               >
                 Cancelar

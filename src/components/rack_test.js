@@ -6,7 +6,7 @@ import { Disclosure, DisclosurePanel, DisclosureButton } from '@headlessui/react
 import { AiOutlineDown, AiOutlineUp, AiOutlineDelete } from 'react-icons/ai';
 
 import Modal_entradas from '@/components/modal_entrada';
-import Modal_salidas from '@/components/modal_salida';
+import Modal_salida from '@/components/modal_salida';
 import Modal_search from '@/components/modal_search';
 import Modal_delete from '@/components/modal_delete';
 import Modal_older from '@/components/modal_older';
@@ -17,7 +17,7 @@ const Board = ({ rack_name }) => {
   const [lists, setLists] = useState([]);
 
   const [isOpenEntradas, setIsOpenEntradas] = useState(false);
-  const [isOpenSalidas, setIsOpenSalidas] = useState(false);
+  const [isOpenSalida, setIsOpenSalida] = useState(false);
   const [isOpenSearch, setIsOpenSearch] = useState(false);
   const [isOpenDelete, setIsOpenDelete] = useState(false);
   const [isOpenAntiguo, setIsOpenAntiguo] = useState(false);
@@ -43,7 +43,6 @@ const Board = ({ rack_name }) => {
           }
         );
         const data = response.data;
-
         let formattedLists = formatData(data);
 
         if (rack_name === "Cables_Especiales") {
@@ -208,9 +207,10 @@ const Board = ({ rack_name }) => {
   };
 
   const handleOpenModal = (modalType, param) => {
+    handleCloseModal();
     setUbicacion(param);
     if (modalType === 'entradas') setIsOpenEntradas(true);
-    if (modalType === 'salidas') setIsOpenSalidas(true);
+    if (modalType === 'salidas') setIsOpenSalida(true);
     if (modalType === 'antiguo') {
       handleSearchOlder(param);
       setIsOpenAntiguo(true);
@@ -227,12 +227,12 @@ const Board = ({ rack_name }) => {
   };
 
   const handleCloseModal = async () => {
-    setIsOpenSearch(false); 
+    setIsOpenEntradas(false);
+    setIsOpenSalida(false);
+    setIsOpenSearch(false);
+    setIsOpenDelete(false);
+    setIsOpenAntiguo(false);
 } 
-
-  const handleSortBySearch = () =>{
-
-  };
 
   const gridConfigs = {
     "Cables_Especiales": "grid-cols-10 grid-rows-6",
@@ -252,7 +252,7 @@ const Board = ({ rack_name }) => {
         </button>
         <button 
         className='bg-blue-800 hover:bg-blue-900 text-white font-bold items-center py-2 px-4 rounded inline-flex'
-        onClick={handleSortBySearch}
+        onClick={() => handleOpenModal('salidas', '')}
         > 
             Retirar Material
         </button>
@@ -352,30 +352,31 @@ const Board = ({ rack_name }) => {
       {isOpenEntradas && (
         <Modal_entradas 
         isOpen={isOpenEntradas} 
-        setIsOpen={setIsOpenEntradas} 
+        setIsOpen={handleCloseModal}
         ubication={ubicacion}
         operator={operator} 
         handleUpdate={handleUpdate}   
         />
       )}
-      {isOpenSalidas && (
-        <Modal_salidas isOpen={isOpenSalidas} 
-        setIsOpen={setIsOpenSalidas} 
+      {isOpenSalida && (
+        <Modal_salida 
+        isOpen={isOpenSalida} 
+        setIsOpen={handleCloseModal}
+        handleUpdate={handleUpdate}  
         />
       )}
       {isOpenSearch && (
         <Modal_search 
           isOpen={isOpenSearch} 
           searchResult={searchResult} 
-          setIsOpen={setIsOpenSearch}
+          setIsOpen={handleCloseModal}
           handleCloseModal={handleCloseModal}
         />
       )}
       {isOpenDelete && (
         <Modal_delete 
         isOpen={isOpenEntradas} 
-        setIsOpen={setIsOpenEntradas} 
-        handleCloseModal={() => setIsOpenDelete(false)}
+        setIsOpen={handleCloseModal}
         deleteSelection={deleteSelection}
         handleUpdate={handleUpdate}  
         />
@@ -384,7 +385,7 @@ const Board = ({ rack_name }) => {
         <Modal_older 
           isOpen={isOpenAntiguo} 
           searchResult={searchResult} 
-          setIsOpen={setIsOpenAntiguo}
+          setIsOpen={handleCloseModal}
         />
       )}
     </>

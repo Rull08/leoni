@@ -4,11 +4,12 @@ import { useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
 import { InformationCircleIcon } from '@heroicons/react/24/outline'
 
-export default function Modal_search({ handleCloseModal, searchResult }) {
-  const [isOpen, setIsOpen] = useState(true)       
+export default function Modal_search({ isOpen, setIsOpen, searchResult }) {
+  
+  if(!isOpen) return null;   
 
   return (
-    <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-10">
+    <Dialog open={isOpen} onClose={setIsOpen} className="relative z-10">
       <DialogBackdrop
         transition
         className="fixed inset-0 bg-gray-500/75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
@@ -48,7 +49,7 @@ export default function Modal_search({ handleCloseModal, searchResult }) {
             <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
               <button
                 type="button"
-                onClick={handleCloseModal}
+                onClick={setIsOpen}
                 className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
               >
                 Entendido

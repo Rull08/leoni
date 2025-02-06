@@ -1,12 +1,11 @@
-import Board from "@/components/rack_test";
+import Rack_extra from "@/components/rack_extra"
 
-const rack_name = 'Cables Especiales'
+const rack_name = 'Piso'
 
-export default function Cables_Especiales(){
+export default function Piso(){
     return(
         <>
-        <h3> Esto es Piso</h3>
-        <Board rack_name={rack_name}  />
+            <Rack_extra rack_name={rack_name}/>
         </>
     );
 }
