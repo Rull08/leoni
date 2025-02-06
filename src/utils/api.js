@@ -10,14 +10,24 @@ const api = axios.create({
 });
 
 if (typeof window !== 'undefined') {
-  // Ahora estamos seguros de que estamos en el cliente, donde localStorage está disponible
   const token = localStorage.getItem('token');
-  
-  
-// Si el token existe, agrégalo al encabezado de autorización global
-if (token) {
-  api.defaults.headers['Authorization'] = `Bearer ${token}`;
-}
+
+  // Si el token existe, agrégalo al encabezado de autorización global
+  if (token) {
+    api.defaults.headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  // Agregar un interceptor para redirigir a login en caso de error 401
+  api.interceptors.response.use(
+    response => response,
+    error => {
+      if (error.response && error.response.status === 401) {
+        // Redirige a la página de login (ajusta la URL según corresponda)
+        window.location.href = '/login';
+      }
+      return Promise.reject(error);
+    }
+  );
 }
 
 

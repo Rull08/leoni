@@ -28,7 +28,7 @@ app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutos
 cache = Cache(app)
 
 app.config['JWT_SECRET_KEY'] = os.getenv("KEY")  #Cambiar la clave y ponerla de forma segura
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=60)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=5)
 
 jwt = JWTManager(app)
 
@@ -258,14 +258,12 @@ def get_materials():
             "id_material": row[0],
             "num_parte": row[1],
             "num_serie": row[2],
-            "nombre_clasificacion": row[3],
-            "cant_kilos": row[4],
-            "cant_metros": row[5],
-            "user": row[6],
-            "ubicacion": row[7],
-            "tipo": row[8],
-            "fecha_produccion": row[9],
-            "fecha_entrada": row[10]
+            "user": row[3],
+            "ubicacion": row[4],
+            "rack": row[5],
+            "fecha_produccion": row[6],
+            "fecha_entrada": row[7],
+            "cant_metros": row[8]
         } for row in materials] if materials else []
         
         return jsonify({
@@ -288,16 +286,15 @@ def set_ubications():
     
     if ubication:
         material_list = [{
-            "id_material": row[0], 
-            "num_parte": row[1], 
-            "num_serie": row[2], 
-            "cant_metros": row[8],
-            "user": row[3], 
-            "ubicacion": row[4], 
-            "fecha_produccion": row[5].strftime("%d/%m/%Y") if row[5] else None,
-            "fecha_entrada": row[6].strftime("%d/%m/%Y") if row[6] else None,
-            "nombre_rack": row[7],
-            "nombre_ubicacion": row[9]
+            "id_material": row[0],
+            "num_parte": row[1],
+            "num_serie": row[2],
+            "user": row[3],
+            "ubicacion": row[4],
+            "rack": row[5],
+            "fecha_produccion": row[6],
+            "fecha_entrada": row[7],
+            "cant_metros": row[8]
             } for row in ubication]
         
         slots_count = [{

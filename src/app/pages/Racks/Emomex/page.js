@@ -1,13 +1,11 @@
-import Board from "@/components/rack_test";
+import Rack_extra from "@/components/rack_extra"
 
+const rack_name = 'Emomex'
 
-const rack_name = 'Cables Especiales'
-
-export default function Cables_Especiales(){
+export default function Emomex(){
     return(
         <>
-        <h3> Esto es EMOMEX </h3>
-        
+            <Rack_extra rack_name={rack_name}/>
         </>
     );
 }
