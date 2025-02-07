@@ -10,7 +10,7 @@ def login_user(user_name, user_password, user_rol, autenticacion):
     result = execute_procedure(StoredProcedures.LOGIN_USER, params)
     
     if result and len(result) > 0 and len(result[0]) >= 2:
-        return Login(user_name, result[0][0], result[0][1])
+        return Login(user_name, '********',result[0][0], result[0][1])
     return None
 
 def add_user(user_name, user_password, user_rol):

@@ -219,9 +219,9 @@ def set_add_user():
         result = add_user(user_name, user_password, user_rol)
         
         if result:
-            return jsonify({'Exito': 'Usuario agregado correctamente'}), 200
-        else:
             return jsonify({'error': 'No se pudo agregar el susuario'}), 404
+        else:
+            return jsonify({'Exito': 'Usuario agregado correctamente'}), 200
     
     except Exception as e:
         

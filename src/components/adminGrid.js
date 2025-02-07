@@ -6,6 +6,7 @@ import { AiOutlineSortAscending, AiOutlineDown, AiOutlineUserAdd, AiOutlineUserD
 import { format } from 'date-fns';
 import api from '@/utils/api';
 
+import Modal_addUser from '@/components/modal_addUser'
 import Pagination from '@/components/pagination'
 
 const AdminGrid = () => {
@@ -17,14 +18,16 @@ const AdminGrid = () => {
     const [limit, setLimit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
 
+    const [isOpenUsuario, setIsOpenUsuario] = useState(false)
+
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const getUsers = async() => {
-            console.log(`Solicitando materiales con sortField: ${sortField} y sortOrder: ${sortOrder}`);
             try{
+                const timestamp = new Date().getTime(); 
                 const token = localStorage.getItem('token'); 
-                const response = await api.get(`/users?page=${currentPage}&limit=${limit}&sort_field=${sortField}&sort_order=${sortOrder}`,
+                const response = await api.get(`/users?page=${currentPage}&limit=${limit}&sort_field=${sortField}&sort_order=${sortOrder}&_=${timestamp}`,
                   {
                     headers: {
                       Authorization: `Bearer ${token}`,
@@ -32,7 +35,6 @@ const AdminGrid = () => {
                   }
                 );
                 setUsers(response.data.users);
-                console.log(users)
                 setTotalPages(response.data.total_pages);
             } catch (error){
                 setError('Error obteniendo usuarios');
@@ -42,26 +44,45 @@ const AdminGrid = () => {
         getUsers();
     }, [currentPage, limit, sortField, sortOrder]);
 
+    const updateData = async () => {
+        try{
+            const timestamp = new Date().getTime(); 
+            const token = localStorage.getItem('token'); 
+            const response = await api.get(`/users?page=${currentPage}&limit=${limit}&sort_field=${sortField}&sort_order=${sortOrder}&_=${timestamp}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            setUsers(response.data.users);
+            setTotalPages(response.data.total_pages);
+        } catch (error){
+            setError('Error obteniendo usuarios');
+            console.error(error)
+        }
+      };
+    
+      const handleUpdate = async () => {
+        setTimeout(async () => {
+          await updateData();
+        }, 1000);
+      };
+
     const handleSortByField = (field) => {
         setSortField(field);
         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
       };
+
+      const handleOpenModal = (modalType) => {
+        handleCloseModal();
+        if (modalType === 'usuario') setIsOpenUsuario(true);
+      };
     
-        const handleSortByPart = () => {
-          handleSortByField('num_parte');
-        };
+      const handleCloseModal = async () => {
+        setIsOpenUsuario(false);
+    } 
     
-        const handleSortByDate = () => {
-          handleSortByField('fecha_produccion');
-        };
-        
-        const handleSortByUbication = () => {
-          handleSortByField('ubicacion');
-        };
-        
-        const handleSortBySerial = () => {
-          handleSortByField('num_serie');
-        };
 
     return (
         <>
@@ -69,7 +90,7 @@ const AdminGrid = () => {
             <div className='flex w-full space-x-4 justify-between'>
                 <button 
                 className='bg-blue-800 hover:bg-blue-900 text-white font-bold items-center py-2 px-4 rounded inline-flex justify-start'
-                onClick={() => handleOpenModal('masivo', '')}
+                onClick={() => handleOpenModal('usuario')}
                 > 
                     Añadir usuario
                 </button>
@@ -85,7 +106,7 @@ const AdminGrid = () => {
                     {error && <div>{error}</div>}
                     <button 
                     className='bg-blue-800 hover:bg-blue-900 text-white font-bold items-center py-2 px-4 rounded inline-flex'
-                    onClick={handleSortBySerial}
+                    onClick={handleSortByField}
                     > 
                         Buscar
                     </button>
@@ -174,6 +195,13 @@ const AdminGrid = () => {
                     </div>
                 </div>
             </div>
+            {isOpenUsuario && (
+              <Modal_addUser 
+              isOpen={isOpenUsuario} 
+              setIsOpen={handleCloseModal}
+              handleUpdate={handleUpdate}  
+              />
+            )}
             <div className='p-4 space-x-4'> 
                 <Pagination
                     currentPage={currentPage}
