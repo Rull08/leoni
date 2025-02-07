@@ -4,7 +4,6 @@ import React from 'react';
 import { AiOutlineDownload } from 'react-icons/ai';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
-import { format, parseISO, isValid } from 'date-fns';
 
 import api from '@/utils/api';
 
@@ -17,27 +16,16 @@ const exportToExcel = async (data) => {
         // Definir las columnas del Excel
         worksheet.columns = [
           { header: 'ID', key: 'id', width: 10 },
-          { header: 'Numero de Parte', key: 'num_parte', width: 50},
-          { header: 'Numero de Serie', key: 'num_serie', width: 10 },
-          { header: 'Clasificacion', key: 'clasificacion', width: 10 },
-          { header: 'Cantidad en Kilos', key: 'kilos', width: 10 },
-          { header: 'Cantidad en Metros', key: 'metros', width: 10 },
+          { header: 'Numero de Parte', key: 'num_parte', width: 20},
+          { header: 'Numero de Serie', key: 'num_serie', width: 15 },
+          { header: 'Cantidad en Metros', key: 'metros', width: 20 },
           { header: 'Usuario', key: 'usuario', width: 10 },
+          { header: 'Rack', key: 'rack', width: 20 },
           { header: 'Ubicacion', key: 'ubicacion', width: 10 },
-          { header: 'Tipo', key: 'tipo', width: 50 },
-          { header: 'Fecha de Produccion', key: 'fecha_produccion', width: 10 },
-          { header: 'Fecha de Entrada', key: 'fecha_entrada', width: 10 },
+          { header: 'Fecha de Produccion', key: 'fecha_produccion', width: 20 },
+          { header: 'Fecha de Entrada', key: 'fecha_entrada', width: 20 },
         ];
 
-        worksheet.columns.forEach((column) => {
-          let maxLength = 0;
-          column.eachCell({ includeEmpty: true }, (cell) => {
-            const cellValue = cell.value ? String(cell.value) : '';
-            maxLength = Math.max(maxLength, cellValue.length);
-          });
-          // Ajustar el ancho de la columna para que se ajuste al contenido
-          column.width = maxLength + 2; // Agregar un poco de margen
-        });
         worksheet.getRow(1).eachCell((cell) => {
           cell.font = { color: { argb: 'FFFFFF' }, bold: true }; 
           cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '0000FF' } }; 
@@ -47,21 +35,18 @@ const exportToExcel = async (data) => {
         data.forEach((item) => {
  
           worksheet.addRow({ 
-            id: item.id_material, 
-            num_parte: item.num_parte, 
-            num_serie: item.num_serie, 
-            clasificacion: item.nombre_clasificacion,
-            kilos: item.cant_kilos,
-            metros: item.cant_metros,
-            usuario: item.user,
-            ubicacion: item.ubicacion,
-            tipo: item.tipo,
-            fecha_produccion: item.fecha_produccion,
-            fecha_entrada: item.fecha_entrada
+            id: String(item.id_material), 
+            num_parte: String(item.num_parte), 
+            num_serie: String(item.num_serie),
+            metros: String(item.cant_metros),
+            usuario: String(item.user),
+            ubicacion: String(item.ubicacion),
+            rack: String(item.rack),
+            fecha_produccion: String(item.fecha_produccion),
+            fecha_entrada: String(item.fecha_entrada)
           });
         });
 
-        // Escribir el archivo en formato buffer
         const buffer = await workbook.xlsx.writeBuffer();
 
         // Crear un Blob con el buffer
@@ -69,7 +54,6 @@ const exportToExcel = async (data) => {
           type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         });
 
-        // Usar FileSaver.js para guardar el archivo
         saveAs(blob, 'Materiales.xlsx');
   } catch (error) {
     console.error('Error al exportar el archivo Excel:', error);
@@ -77,7 +61,7 @@ const exportToExcel = async (data) => {
 };
 
 // Botón para exportar los datos a Excel
-const ExportButton = ({ data, field, order, doe }) => {
+const ExportButton = ({ field, order, doe }) => {
 
 const handleExportSearch = () => {
     const getMaterials = async() => {

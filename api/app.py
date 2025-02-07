@@ -6,7 +6,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 from flask_caching import Cache
 from sqlalchemy.exc import ProgrammingError
-from services.services import login_user, get_all_materials, set_all_ubications, add_material, search_material, exact_search_material, count_ubicactions, get_users, delete_material, search_older, move_material
+from services.services import login_user, add_user, get_all_materials, set_all_ubications, add_material, search_material, exact_search_material, count_ubicactions, get_users, delete_material, search_older, move_material, massive_delete
 from datetime import datetime
 
 from datetime import timedelta 
@@ -104,12 +104,12 @@ def search_materials():
             "id_material": row[0],
             "num_parte": row[1],
             "num_serie": row[2],
-            "cant_kilos": row[4],
-            "cant_metros": row[5],
-            "user": row[6],
-            "ubicacion": row[7],
-            "fecha_produccion": row[9],
-            "fecha_entrada": row[10]
+            "user": row[3],
+            "ubicacion": row[4],
+            "rack": row[5],
+            "fecha_produccion": row[6],
+            "fecha_entrada": row[7],
+            "cant_metros": row[8]
         } for row in materials]
         return jsonify(material_list), 200
     return jsonify({'error': 'Materials not found'}), 404
@@ -204,9 +204,29 @@ def set_move_material():
             return jsonify({'Exito': 'Material movido correctamente'}), 200
     
     except Exception as e:
-        # Capturar cualquier otro error general
+        
         return jsonify({"error": f"Ha ocurrido un error: {str(e)}"}), 500
-
+    
+@app.route('/api/add_user', methods=['POST'])
+@jwt_required()
+def set_add_user():
+    data = request.get_json()
+    user_name = data['user_name']
+    user_password = data['user_password']
+    user_rol = data['user_rol']
+    
+    try:
+        result = add_user(user_name, user_password, user_rol)
+        
+        if result:
+            return jsonify({'error': 'No se pudo agregar el susuario'}), 404
+        else:
+            return jsonify({'Exito': 'Usuario agregado correctamente'}), 200
+    
+    except Exception as e:
+        
+        return jsonify({"error": f"Ha ocurrido un error: {str(e)}"}), 500 
+    
 @app.route('/api/delete_material', methods=['DELETE'])
 @jwt_required()
 def set_delete_material():
@@ -229,6 +249,26 @@ def set_delete_material():
             return jsonify({'error': 'Solo se puede eliminar el material con la fecha más antigua en este rack'}), 400
         return jsonify({'error': 'Error al eliminar material', 'detalle': error_message}), 500
     
+@app.route('/api/massive_delete', methods=['DELETE'])
+@jwt_required()
+def set_massive_delete():
+    part = request.args.get('part_num'),
+    logging.info("Datos recibidos para eliminar: %s", part)
+    if not part:
+        return jsonify({'error': 'El campo part_num es requerido'}), 400
+
+    try:
+        result = massive_delete(part)
+
+        if result:
+            return jsonify({'error': 'El material no se pudo eliminar'}), 404
+        else:
+            return jsonify({'Exito': 'Material eliminado correctamente'}), 200
+    
+    except Exception as e:
+        
+        return jsonify({"error": f"Ha ocurrido un error: {str(e)}"}), 500
+        
 @app.route('/api/materials', methods=['GET'])
 @cache.cached(timeout=60, query_string=True)
 @jwt_required()
@@ -249,11 +289,9 @@ def get_materials():
         
         materials, total_items = get_all_materials(page, limit, sort_field, sort_order)
         
-        # Calcular páginas (si no se usa 'all')
         page_limit = limit if limit != 'all' else total_items
         total_pages = (total_items + page_limit - 1) // page_limit if page_limit else 1
 
-        # Formatear la respuesta (asumiendo una estructura conocida de los datos)
         material_list = [{
             "id_material": row[0],
             "num_parte": row[1],

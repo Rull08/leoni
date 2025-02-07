@@ -1,6 +1,6 @@
 'use client'
 import '@/app/globals.css';
-import Rack_extra from "@/components/rack_extra"
+import AdminProductionGrid from '@/components/adminProduction';
 import { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import { jwtDecode } from 'jwt-decode';
@@ -18,9 +18,7 @@ const isTokenExpired = (token) => {
   }
 };
 
-const rack_name = 'Piso'
-
-export default function Piso(){
+export default function Admin_production(){
 
     const router = useRouter();
 
@@ -32,7 +30,7 @@ export default function Piso(){
         if (!token || typeof token !== 'string' || token.trim() === '') {
           localStorage.removeItem('token');
           router.push('/login');
-          return; // Detener la ejecución del useEffect
+          return; 
         }
 
         
@@ -43,16 +41,13 @@ export default function Piso(){
           if (isTokenExpired(token)) {
             setIsOpenEndSession(true);  
             localStorage.removeItem('token');
-            router.push('/login'); 
           }
         } else {
           localStorage.removeItem('token');
-          router.push('/login');
         }
       } catch (err) {
         console.error('Error al verificar el token:', err);
         localStorage.removeItem('token');
-        router.push('/login');
       }
     }, 10000);
 
@@ -63,9 +58,11 @@ export default function Piso(){
         setIsOpenEndSession(false);  
         router.push('/login');
     } 
-    return(
+  
+    return (
         <>
-            <Rack_extra rack_name={rack_name}/>
+            {isOpenEndSession && (<Modal_endSession handleCloseModal={handleCloseModal} />)}
+            <AdminProductionGrid />
         </>
     );
 }

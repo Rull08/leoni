@@ -27,20 +27,34 @@ export default function Admin(){
     useEffect(() => {
         
         const token = localStorage.getItem('token');
-        if (!token) {
-            localStorage.removeItem('token');
-            router.push('/login');
+        if (!token || typeof token !== 'string' || token.trim() === '') {
+          localStorage.removeItem('token');
+          router.push('/login');
+          return; 
         }
 
+        
         const interval = setInterval(() => {
+          try {
             const token = localStorage.getItem('token');
-            if (isTokenExpired(token)) {
+
+            if (token && typeof token === 'string' && token.trim() !== '') {
+              if (isTokenExpired(token)) {
                 setIsOpenEndSession(true);  
                 localStorage.removeItem('token');
+              }
+            } else {
+            
+              localStorage.removeItem('token');
             }
-        }, 10000);
-        return() => clearInterval(interval);
+          } catch (err) {
 
+            console.error('Error al verificar el token:', err);
+            localStorage.removeItem('token');
+          }
+        }, 10000);
+
+  return () => clearInterval(interval);
     }, [router]);
 
     const handleCloseModal = async () => {
