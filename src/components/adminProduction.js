@@ -1,16 +1,17 @@
 'use client'
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { AiOutlineFilter } from 'react-icons/ai';
+import { AiOutlineFilter, AiOutlineDelete } from 'react-icons/ai';
 
 import { format } from 'date-fns';
 import api from '@/utils/api';
-
+import Modal_delete from '@/components/modal_delete';
 import ExportButton from '@/components/exportButton';
+import Modal_massiveDelete from '@/components/modal_massiveDelete';
 import Pagination from '@/components/pagination'
 
 
-const ProductionGrid = () => {
+const AdminProductionGrid = () => {
     const [materials, setMaterials] = useState([]);
     const [searchText, setSearchText] = useState('');
     const [sortOrder, setSortOrder] = useState('ASC');
@@ -18,6 +19,12 @@ const ProductionGrid = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
+
+    
+    const [isOpenDelete, setIsOpenDelete] = useState(false);
+    const [isOpenMassiveDelete, setIsOpenMassiveDelete] = useState(false);
+    
+    const [deleteSelection, setDeleteSelection] = useState('')
 
     const [error, setError] = useState(null);
 
@@ -43,6 +50,29 @@ const ProductionGrid = () => {
         };
         getMaterials();
     }, [currentPage, limit, sortField, sortOrder]);
+
+    const updateData = async () => {
+        try {
+            const timestamp = new Date().getTime(); 
+            const token = localStorage.getItem('token'); 
+            const response = await api.get(`/materials?page=${currentPage}&limit=${limit}&sort_field=${sortField}&sort_order=${sortOrder}&_=${timestamp}`,
+                {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+          setMaterials(response.data.materials);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+    
+      const handleUpdate = async () => {
+        setTimeout(async () => {
+          await updateData();
+        }, 1000);
+      };
 
     const handleSortBySearch = () =>  {
       const getSearch = async () => {
@@ -74,10 +104,30 @@ const ProductionGrid = () => {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
+  const handleOpenModal = (modalType, param) => {
+    handleCloseModal();
+    if (modalType === 'eliminar') {
+      setIsOpenDelete(true) 
+      setDeleteSelection(param)
+    }  
+    if (modalType === 'masivo') setIsOpenMassiveDelete(true);
+  };
+
+  const handleCloseModal = async () => {
+    setIsOpenDelete(false);
+    setIsOpenMassiveDelete(false);
+} 
+
     return (
         <>
-        <div className='p-4'>
-            <div className='flex w-full space-x-4 justify-end'>
+        <div className='p-4 w-full'>
+            <div className='flex w-full space-x-4 justify-between'>
+                <button 
+                className='bg-blue-800 hover:bg-blue-900 text-white font-bold items-center py-2 px-4 rounded inline-flex justify-start'
+                onClick={() => handleOpenModal('masivo', '')}
+                > 
+                    Eliminar Número de Parte
+                </button>
                 <div className='flex w-1/3'>
                     <input
                       id="consulata"
@@ -191,8 +241,8 @@ const ProductionGrid = () => {
                                                 <span>Fecha de Entrada</span>
                                                 <AiOutlineFilter className='ml-2' />
                                             </button>
-
                                         </th>
+                                        <th className='px-4 py-2'></th>
                                     </tr>
                                 </thead>
                                 <tbody className='divide-y divide-gray-200'>
@@ -243,6 +293,13 @@ const ProductionGrid = () => {
                                                 {material.fecha_entrada}
                                                 </div>
                                             </td>
+                                            <td className='px-4 py-2'>
+                                                <div className='flex items-center justify-center'>
+                                                    <button onClick={() => handleOpenModal('eliminar', material.num_serie)}> 
+                                                        <AiOutlineDelete className='size-4 text-red-600' />
+                                                    </button>
+                                                </div>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -251,6 +308,21 @@ const ProductionGrid = () => {
                     </div>
                 </div>
             </div>
+            {isOpenDelete && (
+              <Modal_delete 
+              isOpen={isOpenDelete} 
+              setIsOpen={handleCloseModal}
+              deleteSelection={deleteSelection}
+              handleUpdate={handleUpdate}  
+              />
+            )}
+            {isOpenMassiveDelete && (
+              <Modal_massiveDelete 
+              isOpen={isOpenMassiveDelete} 
+              setIsOpen={handleCloseModal}
+              handleUpdate={handleUpdate}  
+              />
+            )}
             <div className='p-4 space-x-4'> 
                 <ExportButton 
                     doe={searchText} 
@@ -267,4 +339,4 @@ const ProductionGrid = () => {
     );
 };
 
-export default ProductionGrid;
+export default AdminProductionGrid;

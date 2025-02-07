@@ -10,7 +10,13 @@ def login_user(user_name, user_password, user_rol, autenticacion):
     result = execute_procedure(StoredProcedures.LOGIN_USER, params)
     
     if result and len(result) > 0 and len(result[0]) >= 2:
-        return Login(user_name, user_password, result[0][0], result[0][1])
+        return Login(user_name, result[0][0], result[0][1])
+    return None
+
+def add_user(user_name, user_password, user_rol):
+    params = (user_name, user_password, user_rol)
+    result = execute_procedure(StoredProcedures.ADD_USER, params)
+    print(f"Respuesta: {result}")
     return None
 
 def get_all_materials(page, limit, sort_field, sort_order):
@@ -146,6 +152,9 @@ def add_material(part_num, serial_num, long_quantity, operator, ubication, produ
 
 def delete_material(serial_num):
     return execute_procedure(StoredProcedures.DELETE_MATERIAL, serial_num)
+
+def massive_delete(part_num):
+    return execute_procedure(StoredProcedures.MASSIVE_DELETE, part_num)
 
 def search_older(search):
     query = text("""

@@ -93,7 +93,7 @@ const Rack_extra = ({ rack_name }) => {
               search: searchText
             }, {
               headers: {
-                  Authorization: `Bearer ${token}`,  // Agregar el token en los encabezados
+                  Authorization: `Bearer ${token}`, 
               },
             });
             setSearchResult(response.data);
@@ -114,7 +114,7 @@ const Rack_extra = ({ rack_name }) => {
               search: String(rack)
             }, {
               headers: {
-                  Authorization: `Bearer ${token}`,  // Agregar el token en los encabezados
+                  Authorization: `Bearer ${token}`,
               },
             });
             setSearchResult(response.data);
@@ -125,29 +125,6 @@ const Rack_extra = ({ rack_name }) => {
         }
         };
         getSearch();
-      };
-    
-      const handleMoveMaterial = (numSerie, nuevaUbicacion) => {
-        const moveMaterial = async () => {
-          try {
-            const token = localStorage.getItem('token');
-            const response = await api.post('/move_material', {
-              num_serie: Number(numSerie),
-              nueva_ubicacion: String(nuevaUbicacion)
-            }, {
-              headers: {
-                Authorization: `Bearer ${token}`, 
-              },
-            });
-      
-            console.log(response.data);  
-      
-          } catch (error) {
-            console.error(error);
-            setError('Error al mover material');
-          }
-        };
-        moveMaterial();
       };
 
     const handleOpenModal = (modalType, param) => {

@@ -6,25 +6,22 @@ import { InformationCircleIcon } from '@heroicons/react/24/outline'
 
 import api from '@/utils/api';
 
-export default function Modal_delete({ isOpen, setIsOpen, deleteSelection, handleUpdate }) {
+export default function Modal_massiveDelete({ isOpen, setIsOpen, handleUpdate }) {
+    
+    const [part, setPart] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
   
-  if(!isOpen) return null;   
-
-  const [confirmSerial, setConfirmSerial] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-
-  console.log(deleteSelection)
+    if(!isOpen) return null;   
   
   const handleDeleteMaterial = async (material) => {
-    console.log(material, '---------')
     try {
       const token = localStorage.getItem('token');
-      const response = await api.delete('/delete_material', {
-        params: { serial_num: Number(material) }, // Los parámetros de la query
+      const response = await api.delete('/massive_delete', {
+        params: { part_num: String(material) }, // Los parámetros de la query
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      console.log('Datos a enviar:', { serial_num: material });
+      console.log('Datos a enviar:', { part: material });
 
       if (response.status === 200) {
         alert('Material eliminado correctamente');
@@ -36,22 +33,9 @@ export default function Modal_delete({ isOpen, setIsOpen, deleteSelection, handl
     }
   };
 
-  const handleDelete = async ()  => {
-    
-    if (!confirmSerial.trim()) {
-      setErrorMessage('Por favor, ingrese el número de serie para confirmar la eliminación.');
-      return;
-    }
-    if (!deleteSelection) {
-      setErrorMessage('No se encontró material para eliminar.');
-      return;
-    }
-    if (confirmSerial.trim() !== String(deleteSelection)) {
-      setErrorMessage('El número de serie ingresado no coincide.');
-      return;
-    }
-    
-    await handleDeleteMaterial(deleteSelection);
+  
+  const handleDelete = async () => {
+    await handleDeleteMaterial(part);
     setIsOpen(false);
   };
 
@@ -75,26 +59,22 @@ export default function Modal_delete({ isOpen, setIsOpen, deleteSelection, handl
                 </div>
                 <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                   <DialogTitle as="h3" className="text-base font-semibold text-gray-900">
-                    Material Buscado
+                    Eliminar Número de Parte
                   </DialogTitle>
                   <div className="mt-2">
-                  {deleteSelection ? (
-                        <div className="text-sm text-gray-700">
-                          <p className="mt-2">Para eliminar este material, confirme ingresando el número de serie:</p>
-                          <input 
-                            type="text" 
-                            value={confirmSerial} 
-                            onChange={(e) => setConfirmSerial(e.target.value)} 
-                            placeholder="Confirme el número de serie" 
-                            className="mt-2 w-full border p-2 rounded"
-                          />
-                          {errorMessage && (
-                            <p className="mt-2 text-sm text-red-600">{errorMessage}</p>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-gray-500">No se encontró material.</p>
+                    <div className="text-sm text-gray-700">
+                      <p className="mt-2">Ingrese el número de parte a eliminar:</p>
+                      <input 
+                        type="text" 
+                        value={part} 
+                        onChange={(e) => setPart(e.target.value)} 
+                        placeholder="Ingrese el número de parte" 
+                        className="mt-2 w-full border p-2 rounded"
+                      />
+                      {errorMessage && (
+                        <p className="mt-2 text-sm text-red-600">{errorMessage}</p>
                       )}
+                    </div>
                   </div>
                 </div>
               </div>

@@ -2,7 +2,7 @@ export const menuConfig = {
     general: [],
 
     admin: [
-      { name: 'Materiales', href: '/pages/operador' },
+      { name: 'Materiales', href: '/pages/admin_production' },
       { name: 'Usuarios', href: '/pages/admin' },
     ],
 

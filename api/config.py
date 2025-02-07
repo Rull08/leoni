@@ -18,6 +18,8 @@ class StoredProcedures:
     ADD_MATERIAL = os.getenv('ADD_MATERIAL')
     MOVE_MATERIAL = os.getenv('MOVE_MATERIAL')
     DELETE_MATERIAL = os.getenv('DELETE_MATERIAL')
+    MASSIVE_DELETE = os.getenv('MASSIVE_DELETE')
+    ADD_USER = os.getenv("ADD_USER")
     LOGIN_USER = os.getenv('LOGIN_USER')
     GET_MATERIAL = os.getenv('GET_MATERIAL')
     SEARCH_MATERIAL = os.getenv('SEARCH_MATERIAL')

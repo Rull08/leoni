@@ -6,7 +6,6 @@ import { AiOutlineSortAscending, AiOutlineDown, AiOutlineUserAdd, AiOutlineUserD
 import { format } from 'date-fns';
 import api from '@/utils/api';
 
-import ExportButton from '@/components/exportButton';
 import Pagination from '@/components/pagination'
 
 const AdminGrid = () => {
@@ -67,7 +66,13 @@ const AdminGrid = () => {
     return (
         <>
         <div className='p-4'>
-            <div className='flex w-full space-x-4'>
+            <div className='flex w-full space-x-4 justify-between'>
+                <button 
+                className='bg-blue-800 hover:bg-blue-900 text-white font-bold items-center py-2 px-4 rounded inline-flex justify-start'
+                onClick={() => handleOpenModal('masivo', '')}
+                > 
+                    Añadir usuario
+                </button>
                 <div className='flex w-1/3'>
                     <input
                       id="consulata"
@@ -85,24 +90,10 @@ const AdminGrid = () => {
                         Buscar
                     </button>
                 </div>
-                <div className='flex w-2/3 space-x-4 place-content-end'>
-                    <button onClick={handleSortByPart} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
-                        <AiOutlineSortAscending className='mr-2' /> Ordenar por Numero de parte
-                    </button>
-                    <button onClick={handleSortByDate} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
-                        <AiOutlineDown className='mr-2' /> Ordenar por Fecha
-                    </button>
-                    <button onClick={handleSortByUbication} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
-                        <AiOutlineDown className='mr-2' /> Ordenar por Ubicacion
-                    </button>
-                    <button onClick={handleSortBySerial} className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center'>
-                        <AiOutlineDown className='mr-2' /> Ordenar por Numero de Serie
-                    </button>
-                    </div>
                 </div>
             </div>
-            <div className='w-full'>
-                <div className='p-2 '>
+            <div className='w-fit mx-auto'>
+                <div className='p-2'>
                     <div className='overflow-x-auto'>
                         {error && <p>{error}</p>}
                         {!error && users.length > 0 && (
@@ -126,6 +117,9 @@ const AdminGrid = () => {
                                                 <span>Nombre de Usuario</span>
                                                 <AiOutlineFilter className='ml-2' />
                                             </button>
+                                        </th>
+                                        <th className='px-4 py-2'>
+                                            Contraseña
                                         </th>
                                         <th className='px-4 py-2'>
                                             <button
@@ -154,6 +148,11 @@ const AdminGrid = () => {
                                             </td>
                                             <td className='px-4 py-2'>
                                                 <div className='flex items-center justify-center h-full'>
+                                                    <span>********</span>
+                                                </div>
+                                            </td>
+                                            <td className='px-4 py-2'>
+                                                <div className='flex items-center justify-center h-full'>
                                                     {users.rol}
                                                 </div>
                                             </td>
@@ -176,11 +175,6 @@ const AdminGrid = () => {
                 </div>
             </div>
             <div className='p-4 space-x-4'> 
-                <ExportButton 
-                    doe={searchText} 
-                    field={sortField} 
-                    order={sortOrder} 
-                />   
                 <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}
