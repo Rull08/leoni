@@ -46,7 +46,7 @@ const Modal_addUser = ({ isOpen, setIsOpen, handleUpdate }) => {
     };
 
     const handleKeyDown = (e, nextFieldRef) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter') { 
             nextFieldRef.current.focus();
         }
     };
@@ -115,20 +115,24 @@ const Modal_addUser = ({ isOpen, setIsOpen, handleUpdate }) => {
                                     </div> 
                                 </div>
                                 <div className="flex flex-col gap-1 p-2">
-                                    <label className="block mb-2 text-sm text-white">
-                                                Rol
-                                            </label>
-                                          <input
-                                            id="rol"
-                                            name="rol"
-                                            type="text"
-                                            value={UserRol}
-                                            onChange={(e) => setUserRol(e.target.value)}
-                                            ref={rolRef}
-                                            className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 
-                                            placeholder="Rol: admin/operador/produccion"
-                                            />
-                                    </div>
+                                <label className="block mb-2 text-sm text-white">Rol</label>
+                                <select
+                                  id="rol"
+                                  name="rol"
+                                  value={UserRol}
+                                  onChange={(e) => setUserRol(e.target.value)}
+                                  ref={rolRef}
+                                  className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400"
+                                >
+                                  <option value="">Seleccione un rol</option>
+                                  {roles.map((role) => (
+                                    <option key={role} value={role}>{role}</option>
+                                  ))}
+                                </select>
+                                </div>
+                                {errorMessage && (
+                                  <div className="px-2 py-1 text-red-600">{errorMessage}</div>
+                                )}
                                 <div className="grid grid-cols-2 items-center m-2">
                                     <div>
                                         <button

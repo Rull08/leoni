@@ -9,7 +9,7 @@ import Modal_endSession from '@/components/modal_endSession';
 
 const isTokenExpired = (token) => {
   try {
-    const decoded = jwtDecode(token);
+    const decoded = jwtDecode(token); 
     const currentTime = Date.now() / 1000; 
     return decoded.exp < currentTime; 
   } catch (error) {

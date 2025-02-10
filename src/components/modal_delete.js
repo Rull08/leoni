@@ -16,7 +16,6 @@ export default function Modal_delete({ isOpen, setIsOpen, deleteSelection, handl
   console.log(deleteSelection)
   
   const handleDeleteMaterial = async (material) => {
-    console.log(material, '---------')
     try {
       const token = localStorage.getItem('token');
       const response = await api.delete('/delete_material', {
@@ -24,7 +23,6 @@ export default function Modal_delete({ isOpen, setIsOpen, deleteSelection, handl
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      console.log('Datos a enviar:', { serial_num: material });
 
       if (response.status === 200) {
         alert('Material eliminado correctamente');

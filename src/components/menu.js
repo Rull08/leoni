@@ -36,7 +36,7 @@ const Navbar = () => {
       
   // Determina el menú según la ruta actual
   let navigation = [];
-  if ((pathname.startsWith('/pages/admin')  &&  userRole == 'admin') || (pathname.startsWith('/pages/operador')  &&  userRole == 'admin')) {
+  if ((pathname.startsWith('/pages/admin')  &&  userRole == 'admin') || (pathname.startsWith('/pages/admin_production') || (pathname.startsWith('/pages/registro'))  &&  userRole == 'admin')) {
     navigation = menuConfig.admin;
   } else if (pathname.startsWith('/pages/Racks')) {
     navigation = menuConfig.montacarguista;
