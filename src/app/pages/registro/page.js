@@ -1,6 +1,6 @@
 'use client'
 import '@/app/globals.css';
-import AdminGrid from '@/components/adminGrid';
+import Registro from '@/components/registro';
 import { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import { jwtDecode } from 'jwt-decode';
@@ -83,7 +83,7 @@ export default function Admin(){
     return (
         <>
             {isOpenEndSession && (<Modal_endSession handleCloseModal={handleCloseModal} />)}
-            <AdminGrid />
+            <Registro />
         </>
     );
 }

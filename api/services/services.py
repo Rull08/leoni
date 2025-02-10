@@ -102,6 +102,30 @@ def set_all_ubications(rack_name):
     
     return execute_query(query, {"rack_name": rack_name})
 
+def get_record(page, limit, sort_field, sort_order):
+    
+    if limit == 'ALL':
+        limit = 999999
+        offset = 0  
+    else:
+        offset = (page - 1) * limit
+    
+    query = text(f"""
+        SELECT * FROM registro 
+        ORDER BY {sort_field} {sort_order}
+        LIMIT :limit OFFSET :offset
+    """)
+
+    params = {"limit": limit, "offset": offset}
+
+    record = execute_query(query, params)
+    
+    count_query = text("SELECT COUNT(*) FROM registro")
+    total_record = execute_query(count_query)[0][0]
+    
+    return record, total_record
+
+
 def exact_search_material(search):
     
     # Verificar si el valor es numérico o una cadena
@@ -170,3 +194,57 @@ def search_older(search):
 def move_material(serial_num, new_ubication):
     params = (serial_num, new_ubication)
     return execute_procedure(StoredProcedures.MOVE_MATERIAL, params)
+
+def delete_user(id_user, user_name):
+    query = text("""
+                 DELETE FROM usuarios
+                 WHERE "id" = :id_user AND "user" = :user_name
+                 """)
+    
+    params ={
+        "id_user": id_user,
+        "user_name": user_name
+    }
+
+    return execute_query(query, params)
+
+def update_user(user_id, user_name, user_password, user_rol):
+    query = text("""
+                    UPDATE usuarios
+                    SET "user" = :user_name,
+                        "password" = crypt(:user_password, gen_salt('bf')),
+                        rol = :user_rol
+                    WHERE "id" = :user_id
+                 """)
+    params = {
+        "user_name": user_name,
+        "user_password": user_password,
+        "user_rol": user_rol,
+        "user_id": user_id
+    }
+    
+    return execute_query(query, params)
+
+def search_user(search):
+    query = text("""
+                    SELECT * 
+                    FROM usuarios
+                    WHERE "user" LIKE :search OR rol LIKE :search
+                """)
+    
+    return execute_query(query, {"search": f"%{search}%"})
+
+def update_record(user_name, user_role, user_action, user_date, user_time):
+    query  = text("""
+                  INSERT INTO  registro(usuario, rol, operacion, fecha, hora)
+                  VALUES (:user_name, :user_role, :user_action, :user_date, :user_time)
+                  """)
+    
+    params = {
+        "user_name": user_name, 
+        "user_role" : user_role, 
+        "user_action" : user_action, 
+        "user_date" : user_date, 
+        "user_time" : user_time
+    } 
+    return execute_query(query, params)

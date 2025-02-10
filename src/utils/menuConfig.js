@@ -4,6 +4,7 @@ export const menuConfig = {
     admin: [
       { name: 'Materiales', href: '/pages/admin_production' },
       { name: 'Usuarios', href: '/pages/admin' },
+      { name: 'Registro', href: '/pages/registro' },
     ],
 
     montacarguista: [

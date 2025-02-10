@@ -34,7 +34,6 @@ const Rack_extra = ({ rack_name }) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-      console.log(`Solicitando materiales con sortField: ${sortField} y sortOrder: ${sortOrder}`);
         const getMaterials = async() => {
             try{
                 const timestamp = new Date().getTime(); 
@@ -46,7 +45,6 @@ const Rack_extra = ({ rack_name }) => {
                         },
                     }
                 );
-                console.log(response.data.materials)
                 const filteredMaterials = response.data.materials.filter(material => material.rack && material.rack.includes(rack_name.toUpperCase()));
                 setMaterials(filteredMaterials);
             } catch (error) {

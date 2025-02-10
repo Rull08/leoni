@@ -3,7 +3,6 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { AiOutlineFilter } from 'react-icons/ai';
 
-import { format } from 'date-fns';
 import api from '@/utils/api';
 
 import ExportButton from '@/components/exportButton';

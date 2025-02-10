@@ -130,12 +130,13 @@ const Board = ({ rack_name }) => {
     getSearch();
   };
 
-  const handleMoveMaterial = (numSerie, nuevaUbicacion) => {
+  const handleMoveMaterial = (numSerie, originalLocation, nuevaUbicacion) => {
     const moveMaterial = async () => {
       try {
         const token = localStorage.getItem('token');
         const response = await api.post('/move_material', {
           num_serie: Number(numSerie),
+          ubicacion_original: String(originalLocation),
           nueva_ubicacion: String(nuevaUbicacion)
         }, {
           headers: {
@@ -186,24 +187,32 @@ const Board = ({ rack_name }) => {
     return formatted;
   };
 
-  const handleDragEnd = (result) => {
+  const handleDragEnd = (result, rack_name) => {
     if (!result.destination) return;
 
-    const sourceIndex = lists.findIndex(list => list.id === result.source.droppableId);
-    const destinationIndex = lists.findIndex(list => list.id === result.destination.droppableId);
+  const sourceIndex = lists.findIndex(list => list.id === result.source.droppableId);
+  const destinationIndex = lists.findIndex(list => list.id === result.destination.droppableId);
 
-    const sourceList = lists[sourceIndex];
-    const destinationList = lists[destinationIndex];
+  const sourceList = lists[sourceIndex];
+  const destinationList = lists[destinationIndex];
 
-    const movedItem = sourceList.items.splice(result.source.index, 1)[0];
+  const movedItem = sourceList.items.splice(result.source.index, 1)[0];
+
+  if (rack_name === "Cables_Especiales") {
+    // Inserta en la posición inversa dentro de la lista de destino
+    destinationList.items.splice(destinationList.items.length - result.destination.index, 0, movedItem);
+  } else {
+    // Inserta en la posición normal
     destinationList.items.splice(result.destination.index, 0, movedItem);
+  }
 
-    const movedMaterialContent  = movedItem.content;
-    const newLocation = destinationList.title;
+  const originalLocation = sourceList.title;
+  const movedMaterialContent = movedItem.content;
+  const newLocation = destinationList.title;
 
-    handleMoveMaterial(movedMaterialContent, newLocation)
+  handleMoveMaterial(movedMaterialContent, originalLocation, newLocation);
 
-    setLists([...lists]);
+  setLists([...lists]);
   };
 
   const handleOpenModal = (modalType, param) => {
@@ -375,7 +384,7 @@ const Board = ({ rack_name }) => {
       )}
       {isOpenDelete && (
         <Modal_delete 
-        isOpen={isOpenEntradas} 
+        isOpen={isOpenDelete} 
         setIsOpen={handleCloseModal}
         deleteSelection={deleteSelection}
         handleUpdate={handleUpdate}  

@@ -33,6 +33,24 @@ export default function Admin_production(){
           return; 
         }
 
+        try {
+          const decodedToken = jwtDecode(token); // Decodificar el token
+          const userRole = decodedToken?.role; // Obtener el rol del usuario
+    
+          // Verificar si el usuario no es admin
+          if (userRole !== 'admin') {
+            console.warn('Acceso denegado: No eres administrador');
+            localStorage.removeItem('token');
+            router.push('/login');
+            return;
+          }
+    
+        } catch (error) {
+          console.error('Error al decodificar el token:', error);
+          localStorage.removeItem('token');
+          router.push('/login');
+          return;
+        }
         
     const interval = setInterval(() => {
       try {
