@@ -222,7 +222,7 @@ const Modal_entradas = ({ isOpen, setIsOpen, ubication, operator, handleUpdate }
                                             />
                                         </div> 
                                     </div> 
-                                    <div className='p-4'>
+                                    <div className='w-auto p-4'>
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -233,7 +233,7 @@ const Modal_entradas = ({ isOpen, setIsOpen, ubication, operator, handleUpdate }
                                             setSerialNum(serialNum);
                                             setLongQuantity(cantidad);
                                         }}
-                                        className="bg-blue-500 hover:bg-blue-600 text-white font-semibold w-full rounded"
+                                        className="bg-black hover:bg-black/60 text-white font-semibold w-full rounded"
                                     >
                                         Procesar Datos
                                     </button>
