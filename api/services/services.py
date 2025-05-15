@@ -141,7 +141,7 @@ def exact_search_material(search):
             search_string = search  # Lo tratamos solo como string
         
     query = text(f"""
-                 SELECT m.num_parte, m.num_serie, u.nombre_ubicacion, r.nombre_rack
+                 SELECT m.num_parte, m.num_serie, u.nombre_ubicacion, r.nombre_rack, m.cant_metros
                  FROM materiales m
 				 INNER JOIN ubicaciones u ON m.ubicacion = u.id_ubicacion
 				 INNER JOIN racks r ON u.id_rack = r.id_rack

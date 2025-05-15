@@ -66,8 +66,9 @@ const ExportButton = ({ field, order, doe }) => {
 const handleExportSearch = () => {
     const getMaterials = async() => {
         try{
+            const timestamp = new Date().getTime(); 
             const token = localStorage.getItem('token'); 
-            const response = await api.get(`/materials?obj=${doe}page=${1}&limit=${'ALL'}&sort_field=${field}&sort_order=${order}`,
+            const response = await api.get(`/materials?obj=${doe}page=${1}&limit=${'ALL'}&sort_field=${field}&sort_order=${order}&_=${timestamp}`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -92,8 +93,9 @@ const handleExportSearch = () => {
 const handleExportAll = () => {
     const getMaterials = async() => {
       try {
+        const timestamp = new Date().getTime(); 
         const token = localStorage.getItem('token');
-        const response = await api.post('/search_materials', {
+        const response = await api.post(`/search_materials?_=${timestamp}`, {
           obj: doe,
           page: 1,
           limit: 'ALL',

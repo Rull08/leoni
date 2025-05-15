@@ -18,7 +18,7 @@ const isTokenExpired = (token) => {
   }
 };
 
-const rack_name = 'Emomex'
+const rack_name = 'EMOMEX'
 
 export default function Emomex(){
 

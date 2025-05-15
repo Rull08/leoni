@@ -19,7 +19,7 @@ export default function Modal_delete({ isOpen, setIsOpen, deleteSelection, handl
     try {
       const token = localStorage.getItem('token');
       const response = await api.delete('/delete_material', {
-        params: { serial_num: Number(material) }, // Los parámetros de la query
+        params: { serial_num: material.toString() }, // Los parámetros de la query
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });

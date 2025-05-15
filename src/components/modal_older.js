@@ -35,7 +35,7 @@ export default function Modal_older({ isOpen, setIsOpen, searchResult }) {
                       searchResult.map((material, index) => (
                         <div key={index} className='text-black'>
                             <p>
-                                Al material con numero de serie {material.num_serie} y numero de parte {material.num_parte} en la ubicacion {material.nombre_ubicacion} se le puede dar salida.
+                             Ubicacion: {material.nombre_ubicacion} Mts: {material.cant_metros}
                             </p>
                         </div>
                       ))

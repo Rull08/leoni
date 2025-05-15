@@ -33,8 +33,8 @@ const Modal_entradas = ({ isOpen, setIsOpen, ubication, operator, handleUpdate }
             const token = localStorage.getItem('token'); 
             const response = await api.post('/add_material', {
                 part_num: String(part_Num.toUpperCase()),
-                serial_num: Number(serial_Num),
-                long_quantity: Number(long_Quantity),
+                serial_num: serial_Num.toString(),
+                long_quantity: long_Quantity.toString(),
                 operator: String(Operator),
                 ubication: String(Ubication),
                 production_date: fechaISO,
@@ -74,7 +74,7 @@ const Modal_entradas = ({ isOpen, setIsOpen, ubication, operator, handleUpdate }
     
         const formatearCantidad = (valor) => {
           const soloNumeros = valor.replace(/\D/g, '');
-          return soloNumeros.substring(0, 4);
+          return soloNumeros;
         };
 
 
@@ -90,19 +90,25 @@ const Modal_entradas = ({ isOpen, setIsOpen, ubication, operator, handleUpdate }
 
 
     const extraerDatos = (cadena) => {
-        const matchInicio = cadena.match(/-.*-.*M/);
+        const matchInicio = cadena.match(/M5000000000/);
         if (!matchInicio) return { partNum: '', serialNum: '', cantidad: '' };
     
         const inicio = matchInicio.index + matchInicio[0].length;
-        cadena = cadena.slice(inicio + 23); // Ajustar la longitud según sea necesario
+        cadena = cadena.slice(inicio + 13); // Ajustar la longitud según sea necesario
     
         const numParte = cadena.slice(0, 17); // Primeros 17 caracteres como número de parte
         cadena = cadena.slice(17);
     
-        const numSerie = cadena.slice(0, 8); // Primeros 8 caracteres como número de serie
+        let numSerie = cadena.slice(0, 8); // Primeros 8 caracteres como número de serie
         cadena = cadena.slice(8);
-    
-        const cantidad = cadena.slice(7); // El resto de la cadena es la cantidad
+
+        numSerie += cadena.slice(1, 5); // Salta 1 carácter y toma los siguientes 4
+        cadena = cadena.slice(5); // Elimina los primeros 5 caracteres (1 + 4 ya tomados)
+
+        cadena = cadena.slice(2); // Elimina los siguientes 2 caracteres
+
+        const cantidad = cadena; // Lo que queda es la cantidad
+
     
         return { partNum: numParte, serialNum: numSerie, cantidad: cantidad };
     };
@@ -159,7 +165,7 @@ const Modal_entradas = ({ isOpen, setIsOpen, ubication, operator, handleUpdate }
                                         type="text"
                                         value={serial_Num}
                                         onChange={(e) => setSerialNum(e.target.value)}
-                                        maxLength={8} // longitud exacta
+                                        maxLength={12} // longitud exacta
                                         ref={serialNumRef}
                                         onKeyDown={(e) => handleKeyDown(e, longQuantityRef)} 
                                         className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" 

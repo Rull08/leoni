@@ -18,7 +18,7 @@ const isTokenExpired = (token) => {
   }
 };
 
-const rack_name = 'Piso'
+const rack_name = 'PISO'
 
 export default function Piso(){
 

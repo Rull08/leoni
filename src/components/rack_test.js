@@ -135,7 +135,7 @@ const Board = ({ rack_name }) => {
       try {
         const token = localStorage.getItem('token');
         const response = await api.post('/move_material', {
-          num_serie: Number(numSerie),
+          num_serie: numSerie.toString(),
           ubicacion_original: String(originalLocation),
           nueva_ubicacion: String(nuevaUbicacion)
         }, {
@@ -143,8 +143,6 @@ const Board = ({ rack_name }) => {
             Authorization: `Bearer ${token}`, 
           },
         });
-  
-        console.log(response.data);  
   
       } catch (error) {
         console.error(error);
@@ -179,7 +177,8 @@ const Board = ({ rack_name }) => {
       if (formattedLocation) {
         formattedLocation.items.push({
           id: item.id_material.toString(),
-          content: item.num_serie
+          content: `${item.num_serie},  ${item.num_parte}`,
+          serialNumber: item.num_serie
         });
       }
     });
@@ -207,7 +206,7 @@ const Board = ({ rack_name }) => {
   }
 
   const originalLocation = sourceList.title;
-  const movedMaterialContent = movedItem.content;
+  const movedMaterialContent = movedItem.serialNumber;
   const newLocation = destinationList.title;
 
   handleMoveMaterial(movedMaterialContent, originalLocation, newLocation);
@@ -319,7 +318,7 @@ const Board = ({ rack_name }) => {
                             as="div"
                             className="size-max absolute top-8 left-0 right-44 bg-gray-50 rounded shadow-lg transition-all duration-300 overflow-hidden z-10"
                             style={{
-                              height: open ? `${(list.items.length <= 2 ? list.items.length + 1 : list.items.length) * 50}px` : '0px',
+                              height: open ? `${(list.items.length === 0 ? 1 : list.items.length + 1) * 50}px + 10px` : '0px',
                             }}
                           >
                             <div className="p-2">
@@ -327,13 +326,13 @@ const Board = ({ rack_name }) => {
                                 item && item.id ? (
                                   <Draggable key={`draggable-${item.id}`} draggableId={item.id} index={index}>
                                     {(provided) => (
-                                      <div
+                                      <div 
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
                                         className="flex p-2 mb-2 bg-white rounded shadow text-xs justify-between"
                                       >
-                                        {item.content} <button onClick={() => handleOpenModal('eliminar', item.content)}> <AiOutlineDelete className='size-4 text-red-600' /></button>
+                                        {item.content} 
                                       </div>
                                     )}
                                   </Draggable>

@@ -35,7 +35,7 @@ export default function Modal_search({ isOpen, setIsOpen, searchResult }) {
                       searchResult.map((material, index) => (
                         <div key={index} className='text-black'>
                             <p>
-                                El material con numero de serie {material.num_serie} y numero de parte {material.num_parte} se encuentra en el rack {material.nombre_rack} en la ubicacion {material.nombre_ubicacion}
+                            Ubicacion: {material.nombre_ubicacion} Mts: {material.cant_metros}
                             </p>
                         </div>
                       ))

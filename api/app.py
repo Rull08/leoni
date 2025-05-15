@@ -8,7 +8,6 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from flask_caching import Cache
 from sqlalchemy.exc import ProgrammingError
 from datetime import datetime
-
 from datetime import timedelta 
 
 logging.basicConfig(
@@ -17,7 +16,7 @@ logging.basicConfig(
 )
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://localhost:5000"]}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 #app.register_blueprint(routes_bp, url_prefix='/api')
 
@@ -28,7 +27,7 @@ app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutos
 cache = Cache(app)
 
 app.config['JWT_SECRET_KEY'] = os.getenv("KEY")  #Cambiar la clave y ponerla de forma segura
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=5)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=8)
 
 jwt = JWTManager(app)
 
@@ -168,6 +167,7 @@ def exact_search():
             "num_serie": row[1],
             "nombre_ubicacion": row[2],
             "nombre_rack": row[3],
+            "cant_metros": row[4],
         } for row in result]
         
         return jsonify(search_reault), 200
@@ -434,17 +434,18 @@ def set_ubications():
     ubication = srv.set_all_ubications(rack_name)
     count  = srv.count_ubicactions(rack_name)
     
-    if ubication:
+    if count:
         material_list = [{
             "id_material": row[0],
             "num_parte": row[1],
             "num_serie": row[2],
             "user": row[3],
             "ubicacion": row[4],
-            "rack": row[5],
-            "fecha_produccion": row[6],
-            "fecha_entrada": row[7],
-            "cant_metros": row[8]
+            "fecha_produccion": row[5],
+            "fecha_entrada": row[6],
+            "cant_metros": row[7],
+            "rack": row[8],
+            "nombre_ubicacion": row[9]
             } for row in ubication]
         
         slots_count = [{
@@ -584,8 +585,6 @@ def set_update_user():
     
     except Exception as e:
         return jsonify({"error": f"Ha ocurrido un error: {str(e)}"}), 500
-
-
 
 if __name__ == '__main__':
     app.run(app, debug=True)
